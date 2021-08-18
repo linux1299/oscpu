@@ -19,7 +19,7 @@
 **/build/
 **/build_test/
 **/difftest
-!libraries/difftest
-!libraries/NEMU
-!libraries/DRAMsim3
+libraries/difftest
+libraries/NEMU
+libraries/DRAMsim3
 myinfo.txt
