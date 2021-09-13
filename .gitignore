@@ -11,6 +11,9 @@
 !*.py
 !*.mk
 !*.bin
+!*.scala
+!*.elf
+!*.txt
 !Makefile
 !README
 !README.md
@@ -19,5 +22,12 @@
 **/build/
 **/build_test/
 **/difftest
+<<<<<<< HEAD
 libraries/*
+=======
+**/out/
+!libraries/difftest
+!libraries/NEMU
+!libraries/DRAMsim3
+>>>>>>> 378f55bd23209fd7e9bf892287a3f86c6f5fade9
 myinfo.txt
