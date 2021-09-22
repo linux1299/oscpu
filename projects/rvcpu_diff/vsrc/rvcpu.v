@@ -303,6 +303,8 @@ pipeline_reg#(
 
 //==============Stage 2========================
 //---------reg_file---------
+wire [63:0] regs_o [0:31];
+
 reg_file u_reg_file(
     .clk         ( clk         ),
     .rst_n       ( rst_n       ),
@@ -314,7 +316,9 @@ reg_file u_reg_file(
     .i_rs1_cen   ( o_idu_rs1_cen    ),
     .i_rs2_cen   ( o_idu_rs2_cen    ),
     .o_rs1_rdata ( i_idu_rs1_rdata  ),
-    .o_rs2_rdata ( i_idu_rs2_rdata  )
+    .o_rs2_rdata ( i_idu_rs2_rdata  ),
+
+    .regs_o      ( regs_o )
 );
 
 //-------idu----------
@@ -1056,7 +1060,7 @@ always @(posedge clk) begin
     cmt_pc    <= ls_wb_pc;
     cmt_inst  <= ls_wb_inst;
     cmt_valid <= ls_wb_inst_valid;
-    regs_diff <= u_reg_file.regs;
+    regs_diff <= regs_o;
     trap      <= ls_wb_inst[6:0] == 7'h6b;
     trap_code <= u_reg_file.regs[10][7:0];
     cycleCnt  <= cycleCnt + 1;

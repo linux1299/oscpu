@@ -19,7 +19,10 @@ module reg_file(
     input            i_rs1_cen,
     input            i_rs2_cen,
     output reg[63:0] o_rs1_rdata,
-    output reg[63:0] o_rs2_rdata
+    output reg[63:0] o_rs2_rdata,
+
+    // difftest
+    output    [63:0] regs_o[0:31]
 );
 
 reg [63:0] regs [0:31];
@@ -68,5 +71,13 @@ always @(*) begin
         o_rs2_rdata = 64'b0;
     end
 end
+
+//------------difftest--------------
+genvar j;
+generate
+	for (j = 0; j < 32; j = j + 1) begin
+		assign regs_o[j] = (i_wen & i_addr == j & j != 0) ? i_wdata : regs[j];
+	end
+endgenerate
 
 endmodule
