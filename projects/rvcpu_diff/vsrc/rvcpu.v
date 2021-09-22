@@ -1025,9 +1025,9 @@ reg ex_ls_inst_valid;
 reg ls_wb_inst_valid;
 
 always @(posedge clk) begin
-    if_id_pc <= o_ifu_addr;
-    id_exe_pc <= if_id_pc;
-    ex_ls_pc <= id_exe_pc;
+    //if_id_pc <= o_ifu_addr;
+    //id_exe_pc <= if_id_pc;
+    ex_ls_pc <= id_ex_pc;
     ls_wb_pc <= ex_ls_pc;
 
     id_ex_inst <= if_id_instr;
