@@ -1022,6 +1022,8 @@ reg id_ex_inst_valid;
 reg ex_ls_inst_valid;
 reg ls_wb_inst_valid;
 
+reg ls_wb_ready;
+
 always @(posedge clk) begin
 
     ex_ls_pc <= id_ex_pc;
@@ -1035,6 +1037,8 @@ always @(posedge clk) begin
     id_ex_inst_valid <= if_id_inst_valid;
     ex_ls_inst_valid <= id_ex_inst_valid;
     ls_wb_inst_valid <= ex_ls_inst_valid;
+
+    ls_wb_ready <= u_lsu.i_ram_ready;
 end
 
 always @(posedge clk) begin
@@ -1056,7 +1060,7 @@ always @(posedge clk) begin
     cmt_wdata <= o_wbu_rd_wdata;
     cmt_pc    <= ls_wb_pc;
     cmt_inst  <= ls_wb_inst;
-    cmt_valid <= ls_wb_inst_valid;
+    cmt_valid <= o_wbu_rd_wen | ls_wb_ready;
     regs_diff <= regs_o;
     trap      <= ls_wb_inst[6:0] == 7'h6b;
     trap_code <= u_reg_file.regs[10][7:0];
