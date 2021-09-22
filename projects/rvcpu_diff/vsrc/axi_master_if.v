@@ -232,7 +232,8 @@ module axi_master_if # (
     wire         crossover    = addr_end[3]; // cross 8 byte boundry
 
     wire [7:0]   axi_len      = aligned ? 8'd0 : {7'b0, crossover}; // 0 or 1
-    wire [2:0]   axi_size     = rw_size_i;
+    //wire [2:0]   axi_size     = rw_size_i;
+    wire [2:0]   axi_size     = 3'b011;
 
     wire [63:0]  axi_addr         = rw_addr_i;
     wire [5:0]   aligned_offset_l = {3'b0, rw_addr_i[2:0]} << 3;
