@@ -41,10 +41,7 @@ always @(posedge clk or negedge rst_n) begin
     end
 end
 
-assign fifo_out =  read ?
-                  (fifo_empty ? 
-                  (write ? fifo_in : 0) :
-                   fifo_ram) : 0;
+assign fifo_out = fifo_ram;
 
 
 endmodule
