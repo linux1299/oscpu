@@ -217,7 +217,7 @@ module axi_rw # (
     wire overstep           = addr_end[3:ALIGNED_WIDTH] != 0;
 
     wire [7:0] axi_len      = aligned ? TRANS_LEN - 1 : {{7{1'b0}}, overstep};
-    wire [2:0] axi_size123     = AXI_SIZE[2:0];
+    wire [2:0] axi_size     = AXI_SIZE[2:0];
 
     wire [AXI_ADDR_WIDTH-1:0] axi_addr          = {rw_addr_i[AXI_ADDR_WIDTH-1:ALIGNED_WIDTH], {ALIGNED_WIDTH{1'b0}}};
     wire [OFFSET_WIDTH-1:0] aligned_offset_l    = {{OFFSET_WIDTH-ALIGNED_WIDTH{1'b0}}, {rw_addr_i[ALIGNED_WIDTH-1:0]}} << 3;
