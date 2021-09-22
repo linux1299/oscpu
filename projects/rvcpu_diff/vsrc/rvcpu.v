@@ -1038,7 +1038,7 @@ always @(posedge clk) begin
     ex_ls_inst_valid <= id_ex_inst_valid;
     ls_wb_inst_valid <= ex_ls_inst_valid;
 
-    ls_wb_ready <= u_lsu.i_ram_ready;
+    ls_wb_ready <= o_arb_lsu_ready;
 end
 
 always @(posedge clk) begin
