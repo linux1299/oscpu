@@ -995,17 +995,17 @@ axi_master_if#(
 
 // =============Difftest=============================
 reg cmt_wen;
-reg [7:0] cmt_wdest;
-reg [`REG_BUS] cmt_wdata;
-reg [`REG_BUS] cmt_pc;
+reg [7:0]  cmt_wdest;
+reg [63:0] cmt_wdata;
+reg [63:0] cmt_pc;
 reg [31:0] cmt_inst;
 reg cmt_valid;
 reg trap;
 reg [7:0] trap_code;
 reg [63:0] cycleCnt;
 reg [63:0] instrCnt;
-reg [`REG_BUS] regs_diff [0 : 31];
-wire inst_valid = fetched;
+reg [63:0] regs_diff [0:31];
+
 
 reg [63:0] ex_ls_pc;
 reg [63:0] ls_wb_pc;

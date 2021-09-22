@@ -1,3 +1,5 @@
+`include "defines.v"
+
 module fifo_depth_1 #(
     parameter FIFO_WIDTH = 32
 )
@@ -13,7 +15,7 @@ module fifo_depth_1 #(
 
 reg     [FIFO_WIDTH - 1 : 0]    fifo_ram  ;
 
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         fifo_empty <= 1'b1;
     end
@@ -27,16 +29,22 @@ always @(posedge clk) begin
     end
 end
 
-always @(posedge clk) begin
+always @(posedge clk or negedge rst_n) begin
     if(!rst_n) begin
         fifo_ram <= 0;
     end
-    else if (fifo_empty & write) begin
+    else if (~read & write & fifo_empty) begin
+        fifo_ram <= fifo_in;
+    end
+    else if (read & write & ~fifo_empty) begin
         fifo_ram <= fifo_in;
     end
 end
 
-assign fifo_out = fifo_ram;
+assign fifo_out =  read ?
+                  (fifo_empty ? 
+                  (write ? fifo_in : 0) :
+                   fifo_ram) : 0;
 
 
 endmodule

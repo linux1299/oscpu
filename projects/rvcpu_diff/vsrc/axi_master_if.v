@@ -185,6 +185,7 @@ module axi_master_if # (
                     W_STATE_WRITE: if (w_done)  w_state <= W_STATE_RESP;
                     W_STATE_RESP:  if (b_hs)    w_state <= W_STATE_DONE;
                     W_STATE_DONE:               w_state <= W_STATE_IDLE;
+                    default     :               w_state <= w_state;
                 endcase
             end
         end
@@ -202,7 +203,7 @@ module axi_master_if # (
                     R_STATE_ADDR: if (ar_hs)    r_state <= R_STATE_READ;
                     R_STATE_READ: if (r_done)   r_state <= R_STATE_DONE;
                     R_STATE_DONE:               r_state <= R_STATE_IDLE;
-                    default:;
+                    default:                    r_state <= r_state;
                 endcase
             end
         end

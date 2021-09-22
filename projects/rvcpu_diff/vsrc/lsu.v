@@ -173,8 +173,6 @@ assign o_ram_wdata = wdata;
 
 assign o_ram_size  = size;
 
-assign o_ram_ready = 1'b1;
-
 //--------------cpu port------------
 assign o_rd_data   = i_rd_data;
 

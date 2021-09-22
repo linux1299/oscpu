@@ -90,6 +90,16 @@ always @(posedge clk) begin
             `ADDR_MTVAL   : mtval   <= i_cpu_csr_wdata;
 
             `ADDR_MHARTID : mhartid <= i_cpu_csr_wdata;
+
+            default : begin
+                mstatus <= mstatus;
+                mie     <= mie;
+                mtvec   <= mtvec;
+                mepc    <= mepc;
+                mcause  <= mcause;
+                mtval   <= mtval;
+                mhartid <= mhartid;
+            end
         endcase
     end
     else if (i_clint_csr_wen) begin
@@ -107,6 +117,16 @@ always @(posedge clk) begin
             `ADDR_MTVAL   : mtval   <= i_clint_csr_wdata;
 
             `ADDR_MHARTID : mhartid <= i_clint_csr_wdata;
+
+            default : begin
+                mstatus <= mstatus;
+                mie     <= mie;
+                mtvec   <= mtvec;
+                mepc    <= mepc;
+                mcause  <= mcause;
+                mtval   <= mtval;
+                mhartid <= mhartid;
+            end
         endcase
     end
 end

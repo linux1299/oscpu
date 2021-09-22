@@ -61,3 +61,8 @@
 
 // PC
 `define PC_START        64'h30000_0000
+
+// priv mode
+`define RISCV_PRIV_MODE_U   0
+`define RISCV_PRIV_MODE_S   1
+`define RISCV_PRIV_MODE_M   3
