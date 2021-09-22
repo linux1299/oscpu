@@ -1010,8 +1010,6 @@ reg [63:0] cycleCnt;
 reg [63:0] instrCnt;
 reg [63:0] regs_diff [0:31];
 
-reg [63:0] if_id_pc;
-reg [63:0] id_exe_pc;
 reg [63:0] ex_ls_pc;
 reg [63:0] ls_wb_pc;
 
@@ -1025,8 +1023,7 @@ reg ex_ls_inst_valid;
 reg ls_wb_inst_valid;
 
 always @(posedge clk) begin
-    //if_id_pc <= o_ifu_addr;
-    //id_exe_pc <= if_id_pc;
+
     ex_ls_pc <= id_ex_pc;
     ls_wb_pc <= ex_ls_pc;
 
