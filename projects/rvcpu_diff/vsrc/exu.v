@@ -10,10 +10,12 @@ module exu(
     input   [63:0] i_imm,
     input   [63:0] i_rs1_rdata,
     input   [63:0] i_rs2_rdata,
+    input   [63:0] i_csr_rdata,
     input   [63:0] i_pc,
 
     // ex control
     input   [12:0] i_alu_info,
+    input   [5:0]  i_csr_info,
     input          i_op2_is_imm,
     input          i_op_is_jal,
 
@@ -26,7 +28,7 @@ module exu(
     output  [4:0]  o_rd_addr,
 
     // ls
-    output  [31:0] o_mem_addr,
+    output  [63:0] o_mem_addr,
     output  [63:0] o_mem_wdata,
     // ls control
     input   [10:0] i_ls_info,
@@ -42,8 +44,17 @@ module exu(
     input          i_forward_ls_rs1,
     input          i_forward_ls_rs2,
 
-    input [63:0]   i_ex_ls_rd_data,
-    input [63:0]   i_wbu_rd_wdata
+    input   [63:0] i_ex_ls_rd_data,
+    input   [63:0] i_wbu_rd_wdata,
+
+    // csr
+    input          i_csr_wen,
+    input   [11:0] i_csr_waddr,
+    output  [63:0] o_csr_wdata,
+    output         o_csr_wen,
+    output  [11:0] o_csr_waddr
+
+
 );
 
 
@@ -66,6 +77,21 @@ wire op_alu_subw  = i_alu_info[10] & i_alu_info[0];
 wire op_alu_sllw  = i_alu_info[ 6] & i_alu_info[0];
 wire op_alu_srlw  = i_alu_info[ 5] & i_alu_info[0];
 wire op_alu_sraw  = i_alu_info[ 4] & i_alu_info[0];
+
+wire op_csr_csrrw = i_csr_info[5];
+wire op_csr_csrrs = i_csr_info[4];
+wire op_csr_csrrc = i_csr_info[3];
+wire op_csr_csrrwi= i_csr_info[2];
+wire op_csr_csrrsi= i_csr_info[1];
+wire op_csr_csrrci= i_csr_info[0];
+wire op_csr       = op_csr_csrrw
+                  | op_csr_csrrs
+                  | op_csr_csrrc
+                  | op_csr_csrrwi
+                  | op_csr_csrrsi
+                  | op_csr_csrrci
+                  ;
+
 
 wire signed [63:0] add_rd_data;
 wire signed [63:0] sub_rd_data;
@@ -90,6 +116,13 @@ wire signed [31:0] temp_subw_rd;
 wire signed [31:0] temp_sllw_rd;
 wire        [31:0] temp_srlw_rd;
 wire signed [31:0] temp_sraw_rd;
+
+wire        [63:0] csrrw_wdata;
+wire        [63:0] csrrs_wdata;
+wire        [63:0] csrrc_wdata;
+wire        [63:0] csrrwi_wdata;
+wire        [63:0] csrrsi_wdata;
+wire        [63:0] csrrci_wdata;
 
 reg         [63:0] op1;
 reg         [63:0] op2;
@@ -189,6 +222,23 @@ assign sraw_rd_data = {{32{temp_sraw_rd[31]}}, temp_sraw_rd};
 // jal
 assign jal_rd_data = i_pc + 4;
 
+
+//------------------CSR wdata--------------
+assign csrrw_wdata  =  i_rs1_rdata;
+
+assign csrrs_wdata  =  i_rs1_rdata | i_csr_rdata;
+
+assign csrrc_wdata  = ~i_rs1_rdata & i_csr_rdata;
+
+assign csrrwi_wdata =  i_imm;
+
+assign csrrsi_wdata =  i_imm | i_csr_rdata;
+
+assign csrrci_wdata = ~i_imm & i_csr_rdata;
+
+
+
+
 //----------output---------------------
 assign o_rd_wen  = i_rd_wen;
 
@@ -212,15 +262,27 @@ assign o_rd_data = ({64{op_alu_add}}   & add_rd_data)
                 |  ({64{op_alu_srlw}}  & srlw_rd_data)
                 |  ({64{op_alu_sraw}}  & sraw_rd_data)
                 |  ({64{i_op_is_jal}}  & jal_rd_data)
+                |  ({64{op_csr}}       & i_csr_rdata)
                 ;
 
 
-assign o_mem_addr  = add_rd_data[31:0];
+assign o_mem_addr  = add_rd_data;
 assign o_mem_wdata = i_forward_ls_rs2 ? i_wbu_rd_wdata :
                      i_forward_ex_rs2 ? i_ex_ls_rd_data : i_rs2_rdata;
 
 assign o_ls_info   = i_ls_info;
 assign o_mem_read  = i_mem_read;
 assign o_mem_write = i_mem_write;
+
+assign o_csr_waddr = i_csr_waddr;
+assign o_csr_wen   = i_csr_wen;
+
+assign o_csr_wdata = ({64{op_csr_csrrw }} & csrrw_wdata)
+                  |  ({64{op_csr_csrrs }} & csrrs_wdata)
+                  |  ({64{op_csr_csrrc }} & csrrc_wdata)
+                  |  ({64{op_csr_csrrwi}} & csrrwi_wdata)
+                  |  ({64{op_csr_csrrsi}} & csrrsi_wdata)
+                  |  ({64{op_csr_csrrci}} & csrrci_wdata)
+                  ;
 
 endmodule

@@ -26,7 +26,7 @@ reg [63:0] regs [0:31];
 integer i;
 
 //---------Write reg_file--------------
-always @(posedge clk or negedge rst_n) begin
+always @(posedge clk) begin
     if(~rst_n) begin
         for (i = 0; i < 32; i=i+1) begin
             regs[i] <= 64'b0;

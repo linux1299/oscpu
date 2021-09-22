@@ -1,5 +1,5 @@
 // Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
-// Last edit: 2021.07.19
+// Last edit: 2021.08.31
 // Instruction Decode Unit module
 // Pure combinational logic
 // branch and jump at id
@@ -16,21 +16,22 @@ module idu(
     output        o_branch_jump,
 
     // reg_file
-    input  [63:0]  i_rs1_rdata,
-    input  [63:0]  i_rs2_rdata,
-    output [4:0]   o_rs1_addr,
-    output [4:0]   o_rs2_addr,
-    output         o_rs1_cen,
-    output         o_rs2_cen,
+    input  [63:0] i_rs1_rdata,
+    input  [63:0] i_rs2_rdata,
+    output [4:0]  o_rs1_addr,
+    output [4:0]  o_rs2_addr,
+    output        o_rs1_cen,
+    output        o_rs2_cen,
 
     // ex
-    output [63:0]  o_imm,
-    output [63:0]  o_rs1_rdata,
-    output [63:0]  o_rs2_rdata,
-    output [63:0]  o_pc,
+    output [63:0] o_imm,
+    output [63:0] o_rs1_rdata,
+    output [63:0] o_rs2_rdata,
+    output [63:0] o_pc,
 
     // ex control
     output [12:0] o_alu_info,
+    output [8:0]  o_csr_info,
     output        o_op2_is_imm,
     output        o_op_is_jal,
 
@@ -53,7 +54,14 @@ module idu(
 
     input [63:0]  i_exu_rd_data,
     input [63:0]  i_lsu_rd_data,
-    input [63:0]  i_lsu_mem_rdata
+    input [63:0]  i_lsu_mem_rdata,
+
+    // csr
+    input  [63:0] i_csr_rdata,
+    output        o_csr_wen,
+    output [63:0] o_csr_rdata,
+    output [11:0] o_csr_raddr,
+    output [11:0] o_csr_waddr
 
 );
 
@@ -65,6 +73,7 @@ wire [4:0]  rs1    = i_instr[19:15];
 wire [4:0]  rs2    = i_instr[24:20];
 wire [2:0]  func3  = i_instr[14:12];
 wire [6:0]  func7  = i_instr[31:25];
+wire [11:0] csr    = i_instr[31:20];
 
 
 wire instr_op_is_imm   = (opcode == `INSTR_I);
@@ -77,7 +86,7 @@ wire instr_op_is_branch= (opcode == `INSTR_B);
 wire instr_op_is_lui   = (opcode == `INSTR_LUI);
 wire instr_op_is_auipc = (opcode == `INSTR_AUIPC);
 wire instr_op_is_fence = (opcode == `INSTR_FENCE);
-wire instr_op_is_csr   = (opcode == `INSTR_CSR);
+wire instr_op_is_sys   = (opcode == `INSTR_SYS);
 wire instr_op_is_word  = (opcode == `INSTR_WORD);
 wire instr_op_is_wordi = (opcode == `INSTR_WORDI);
 
@@ -94,6 +103,7 @@ wire func3_is_111 = (func3 == 3'b111);
 
 wire func7_is_0000000 = (func7 == 7'b0000000);
 wire func7_is_0100000 = (func7 == 7'b0100000);
+wire func7_is_0011000 = (func7 == 7'b0011000);
 
 
 
@@ -148,10 +158,22 @@ wire instr_load   = instr_op_is_load;
 wire instr_store  = instr_op_is_store;
 
 
-//-------------Ebreak Ecall----------------------
-wire instr_ebreak = instr_op_is_csr & func3_is_000 & (i_instr[31:20] == 12'b0000_0000_0001);
-wire instr_ecall  = instr_op_is_csr & func3_is_000 & (i_instr[31:20] == 12'b0000_0000_0000);
+//-------------Exception or CSR----------------------
+wire instr_ebreak = instr_op_is_sys & func3_is_000 & func7_is_0000000 & (rs2 == 5'b1);
+wire instr_ecall  = instr_op_is_sys & func3_is_000 & func7_is_0000000 & (rs2 == 5'b0);
+wire instr_mret   = instr_op_is_sys & func3_is_000 & func7_is_0011000 & (rs2 == 5'b10);
 
+wire instr_csrrw  = instr_op_is_sys & func3_is_001;
+wire instr_csrrs  = instr_op_is_sys & func3_is_010;
+wire instr_csrrc  = instr_op_is_sys & func3_is_011;
+wire instr_csrrwi = instr_op_is_sys & func3_is_101;
+wire instr_csrrsi = instr_op_is_sys & func3_is_110;
+wire instr_csrrci = instr_op_is_sys & func3_is_111;
+
+wire instr_csri    =  instr_csrrwi
+                    | instr_csrrsi
+                    | instr_csrrci
+                    ;
 
 //--------------Branch jal jalr----------------
 wire instr_beq    = instr_op_is_branch & func3_is_000;
@@ -180,7 +202,7 @@ wire instr_type_u = instr_op_is_lui
 wire instr_type_j = instr_op_is_jal;       // J type
 
 
-//-------------instruction is ALU operation------
+//-------------operation is ALU ------------------------
 wire op_alu_add   = instr_add | instr_addi | instr_addw | instr_addiw;
 wire op_alu_sub   = instr_sub | instr_subw;
 wire op_alu_slt   = instr_slt | instr_slti;
@@ -233,12 +255,18 @@ wire [12:0] op_ls_info = {
                     };
 
 
-//-------------instruction operation is other----------
-wire op_ecall  = instr_ecall;
-
-wire op_ebreak = instr_ebreak;
-
-
+//-------------operation is Exception or CSR----------
+wire [8:0] op_csr_info = {
+                         instr_ecall,
+                         instr_ebreak,
+                         instr_mret,
+                         instr_csrrw,
+                         instr_csrrs,
+                         instr_csrrc,
+                         instr_csrrwi,
+                         instr_csrrsi,
+                         instr_csrrci
+                        };
 
 
 //---------Immediate number---------------
@@ -273,19 +301,22 @@ wire [63:0] j_imm = {{43{i_instr[31]}},
                          i_instr[30:21],
                          1'b0};
 
+wire [63:0] csr_imm = {59'b0, rs1};
+
 wire [63:0] imm =
                   ({64{instr_type_i}} & i_imm)
                 | ({64{instr_type_s}} & s_imm)
                 | ({64{instr_type_b}} & b_imm)
                 | ({64{instr_type_u}} & u_imm)
                 | ({64{instr_type_j}} & j_imm)
-                ;       // Use AND and OR Logic replace CASE
+                | ({64{instr_csri}}   & csr_imm)
+                ;
 
 
 //------------branch/jal/jalr------------
 
 wire signed [63:0] imm_signed = $signed(imm);
-wire signed [63:0] pc_signed = $signed(i_instr_addr);
+wire signed [63:0] pc_signed  = $signed(i_instr_addr);
 
 reg         [63:0] branch_op1;
 reg         [63:0] branch_op2;
@@ -369,6 +400,7 @@ assign o_rs2_rdata  = i_rs2_rdata;
 assign o_pc         = i_instr_addr;
 
 assign o_alu_info   = op_alu_info;
+assign o_csr_info   = op_csr_info;
 assign o_op2_is_imm = op2_is_imm;
 assign o_op_is_jal  = instr_jal | instr_jalr;
 
@@ -376,9 +408,26 @@ assign o_ls_info    = op_ls_info[10:0];
 assign o_mem_read   = op_ls_info[12];
 assign o_mem_write  = op_ls_info[11];
 
-assign o_rd_wen     = ~(instr_type_s | instr_type_b);
+assign o_rd_wen     = (~instr_type_s) &
+                      (~instr_type_b) &
+                      (~instr_ebreak) &
+                      (~instr_ecall ) &
+                      (~instr_mret  ) &
+                      ~(i_instr == 32'd0)
+                    ;
+
 assign o_rd_addr    = rd;
 
 assign o_op_is_branch = instr_op_is_branch | instr_op_is_jalr;
+
+
+assign o_csr_raddr  = csr;
+assign o_csr_waddr  = csr;
+assign o_csr_rdata  = i_csr_rdata;
+
+assign o_csr_wen    = instr_csrrw
+                    | instr_csrrs
+                    | instr_csrrc;
+
 
 endmodule

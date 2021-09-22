@@ -4,7 +4,7 @@
 
 `include "defines.v"
 
-module pipline_reg #(parameter N = 1)
+module pipeline_reg #(parameter N = 1)
     (
     input              clk,
     input              clear,

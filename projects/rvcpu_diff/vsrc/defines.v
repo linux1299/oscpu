@@ -27,10 +27,37 @@
 // Add upper immediate to pc
 `define INSTR_AUIPC  7'b0010111
 
-// other
+// fence
 `define INSTR_FENCE  7'b0001111
-`define INSTR_CSR    7'b1110011
+
+// System
+`define INSTR_SYS    7'b1110011
 
 // ALU word op
 `define INSTR_WORD   7'b0111011
 `define INSTR_WORDI  7'b0011011
+
+// CSR addr
+`define ADDR_MSTATUS  12'h300
+`define ADDR_MIE      12'h304
+`define ADDR_MTVEC    12'h305
+`define ADDR_MEPC     12'h341
+`define ADDR_MCAUSE   12'h342
+`define ADDR_MTVAL    12'h343
+`define ADDR_MIP      12'h344
+`define ADDR_MCYCLE   12'hb00
+`define ADDR_MHARTID  12'hf14
+
+`define ADDR_MTIMECMP 64'h200_4000
+`define ADDR_MTIME    64'h200_bff8
+
+// AXI
+`define RW_DATA_WIDTH   64
+`define RW_ADDR_WIDTH   64
+`define AXI_DATA_WIDTH  64
+`define AXI_ADDR_WIDTH  64
+`define AXI_ID_WIDTH    4
+`define AXI_USER_WIDTH  1
+
+// PC
+`define PC_START        64'h30000_0000
