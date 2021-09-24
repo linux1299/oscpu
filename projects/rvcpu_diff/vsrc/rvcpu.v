@@ -1060,7 +1060,8 @@ always @(posedge clk) begin
     cmt_wdata <= o_wbu_rd_wdata;
     cmt_pc    <= ls_wb_pc;
     cmt_inst  <= ls_wb_inst;
-    cmt_valid <= o_wbu_rd_wen | ls_wb_ready;
+    //cmt_valid <= o_wbu_rd_wen | ls_wb_ready;
+    cmt_valid <= ls_wb_inst_valid;
     regs_diff <= regs_o;
     trap      <= ls_wb_inst[6:0] == 7'h6b;
     trap_code <= u_reg_file.regs[10][7:0];
