@@ -1010,7 +1010,6 @@ reg [63:0] cycleCnt;
 reg [63:0] instrCnt;
 reg [63:0] regs_diff [0:31];
 
-reg [63:0] ex_ls_pc;
 reg [63:0] ls_wb_pc;
 
 reg [31:0] id_ex_inst;
@@ -1026,12 +1025,9 @@ reg ls_wb_ready;
 
 always @(posedge clk) begin
 
-    ex_ls_pc <= id_ex_pc;
-    ls_wb_pc <= ex_ls_pc;
-
     id_ex_inst <= if_id_instr;
     ex_ls_inst <= id_ex_inst;
-    ls_wb_inst <= ex_ls_inst;
+    //ls_wb_inst <= ex_ls_inst;
 
     if_id_inst_valid <= o_ifu_instr_valid;
     id_ex_inst_valid <= if_id_inst_valid;
@@ -1039,6 +1035,24 @@ always @(posedge clk) begin
     ls_wb_inst_valid <= ex_ls_inst_valid;
 
     ls_wb_ready <= o_arb_lsu_ready;
+end
+
+always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+        ls_wb_pc <= 0;
+    end
+    else if (o_ifu_instr_valid) begin
+        ls_wb_pc <= o_ifu_pc;
+    end
+end
+
+always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+        ls_wb_inst <= 0;
+    end
+    else if (o_ifu_instr_valid) begin
+        ls_wb_inst <= o_ifu_instr;
+    end
 end
 
 always @(posedge clk) begin
@@ -1060,8 +1074,8 @@ always @(posedge clk) begin
     cmt_wdata <= o_wbu_rd_wdata;
     cmt_pc    <= ls_wb_pc;
     cmt_inst  <= ls_wb_inst;
-    //cmt_valid <= o_wbu_rd_wen | ls_wb_ready;
-    cmt_valid <= ls_wb_inst_valid;
+    cmt_valid <= o_wbu_rd_wen | ls_wb_ready;
+    //cmt_valid <= ls_wb_inst_valid;
     regs_diff <= regs_o;
     trap      <= ls_wb_inst[6:0] == 7'h6b;
     trap_code <= u_reg_file.regs[10][7:0];
