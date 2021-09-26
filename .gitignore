@@ -24,8 +24,6 @@
 **/build_test/
 **/difftest
 
-libraries/*
-
 **/out/
 !libraries/difftest
 !libraries/NEMU
