@@ -232,8 +232,7 @@ module axi_master_if # (
     wire         crossover    = addr_end[3]; // cross 8 byte boundry
 
     wire [7:0]   axi_len      = aligned ? 8'd0 : {7'b0, crossover}; // 0 or 1
-    //wire [2:0]   axi_size     = rw_size_i;
-    wire [2:0]   axi_size     = 3'b011;
+    wire [2:0]   axi_size     = rw_size_i;
 
     wire [63:0]  axi_addr         = rw_addr_i;
     wire [5:0]   aligned_offset_l = {3'b0, rw_addr_i[2:0]} << 3;
@@ -307,10 +306,14 @@ module axi_master_if # (
     // ------------------Write Transaction------------------
     // Write address channel signals
     assign axi_aw_id_o      = axi_id;
+    
     assign axi_aw_addr_o    = axi_addr;
     //assign axi_aw_addr_o    = {rw_addr_i[63:3], 3'b0};
+
     assign axi_aw_len_o     = axi_len;
+
     assign axi_aw_size_o    = rw_size_i;
+
     assign axi_aw_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_aw_lock_o    = 1'b0;
     assign axi_aw_cache_o   = `AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE;
@@ -356,13 +359,18 @@ module axi_master_if # (
 
     // Read address channel signals
     assign axi_ar_valid_o   = r_state_addr;
-    //assign axi_ar_addr_o    = axi_addr;
-    assign axi_ar_addr_o    = {rw_addr_i[63:3], 3'b0};
+
+    assign axi_ar_addr_o    = axi_addr;
+    //assign axi_ar_addr_o    = {rw_addr_i[63:3], 3'b0};
+
     assign axi_ar_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS;
     assign axi_ar_id_o      = axi_id;
     assign axi_ar_user_o    = axi_user;
     assign axi_ar_len_o     = axi_len;
-    assign axi_ar_size_o    = axi_size;
+
+    //assign axi_ar_size_o    = axi_size;
+    assign axi_ar_size_o    = 3'b011;
+
     assign axi_ar_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_ar_lock_o    = 1'b0;
     assign axi_ar_cache_o   = `AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE;
