@@ -333,7 +333,8 @@ module axi_master_if # (
 
     assign axi_w_valid_o    = w_state_write;
     assign axi_w_data_o     = w_data;
-    assign axi_w_strb_o     = w_strb;
+    //assign axi_w_strb_o     = w_strb;
+    assign axi_w_strb_o     = 8'hff;
     assign axi_w_last_o     = w_state_write & (len == axi_len);
     assign axi_w_user_o     = axi_user;
 
