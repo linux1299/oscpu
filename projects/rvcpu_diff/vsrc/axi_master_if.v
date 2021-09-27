@@ -312,8 +312,8 @@ module axi_master_if # (
 
     assign axi_aw_len_o     = axi_len;
 
-    //assign axi_aw_size_o    = rw_size_i;
-    assign axi_aw_size_o    = 3'b011;
+    assign axi_aw_size_o    = rw_size_i;
+    //assign axi_aw_size_o    = 3'b011;
 
     assign axi_aw_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_aw_lock_o    = 1'b0;
