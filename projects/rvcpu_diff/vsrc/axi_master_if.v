@@ -307,8 +307,8 @@ module axi_master_if # (
     // Write address channel signals
     assign axi_aw_id_o      = axi_id;
     
-    //assign axi_aw_addr_o    = axi_addr;
-    assign axi_aw_addr_o    = {rw_addr_i[63:3], 3'b0};
+    assign axi_aw_addr_o    = axi_addr;
+    //assign axi_aw_addr_o    = {rw_addr_i[63:3], 3'b0};
 
     assign axi_aw_len_o     = axi_len;
 
@@ -361,8 +361,8 @@ module axi_master_if # (
     // Read address channel signals
     assign axi_ar_valid_o   = r_state_addr;
 
-    //assign axi_ar_addr_o    = axi_addr;
-    assign axi_ar_addr_o    = {rw_addr_i[63:3], 3'b0};
+    assign axi_ar_addr_o    = axi_addr;
+    //assign axi_ar_addr_o    = {rw_addr_i[63:3], 3'b0};
 
     assign axi_ar_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS;
     assign axi_ar_id_o      = axi_id;
