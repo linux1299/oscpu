@@ -23,10 +23,8 @@
 **/build/
 **/build_test/
 **/difftest
-
 **/out/
 !libraries/difftest
 !libraries/NEMU
 !libraries/DRAMsim3
-
 myinfo.txt
