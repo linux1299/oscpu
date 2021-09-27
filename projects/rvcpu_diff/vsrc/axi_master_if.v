@@ -309,7 +309,7 @@ module axi_master_if # (
     assign axi_aw_id_o      = axi_id;
     assign axi_aw_addr_o    = axi_addr;
     assign axi_aw_len_o     = axi_len;
-    assign axi_aw_size_o    = axi_size;
+    assign axi_aw_size_o    = rw_size_i;
     assign axi_aw_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_aw_lock_o    = 1'b0;
     assign axi_aw_cache_o   = `AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE;
