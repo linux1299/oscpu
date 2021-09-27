@@ -333,8 +333,7 @@ module axi_master_if # (
 
     assign axi_w_valid_o    = w_state_write;
     assign axi_w_data_o     = w_data;
-    //assign axi_w_strb_o     = w_strb;
-    assign axi_w_strb_o     = 8'hff;
+    assign axi_w_strb_o     = w_strb;
     assign axi_w_last_o     = w_state_write & (len == axi_len);
     assign axi_w_user_o     = axi_user;
 
@@ -363,15 +362,14 @@ module axi_master_if # (
     assign axi_ar_valid_o   = r_state_addr;
 
     assign axi_ar_addr_o    = axi_addr;
-    //assign axi_ar_addr_o    = {rw_addr_i[63:3], 3'b0};
 
     assign axi_ar_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS;
     assign axi_ar_id_o      = axi_id;
     assign axi_ar_user_o    = axi_user;
     assign axi_ar_len_o     = axi_len;
 
-    assign axi_ar_size_o    = axi_size;
-    //assign axi_ar_size_o    = 3'b011;
+    //assign axi_ar_size_o    = axi_size;
+    assign axi_ar_size_o    = 3'b011;
 
     assign axi_ar_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_ar_lock_o    = 1'b0;
