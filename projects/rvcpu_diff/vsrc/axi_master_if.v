@@ -307,8 +307,8 @@ module axi_master_if # (
     // ------------------Write Transaction------------------
     // Write address channel signals
     assign axi_aw_id_o      = axi_id;
-    //assign axi_aw_addr_o    = axi_addr;
-    assign axi_aw_addr_o    = {rw_addr_i[63:3], 3'b0};
+    assign axi_aw_addr_o    = axi_addr;
+    //assign axi_aw_addr_o    = {rw_addr_i[63:3], 3'b0};
     assign axi_aw_len_o     = axi_len;
     assign axi_aw_size_o    = rw_size_i;
     assign axi_aw_burst_o   = `AXI_BURST_TYPE_INCR;
