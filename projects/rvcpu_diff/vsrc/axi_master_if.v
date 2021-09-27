@@ -360,8 +360,8 @@ module axi_master_if # (
     // Read address channel signals
     assign axi_ar_valid_o   = r_state_addr;
 
-    assign axi_ar_addr_o    = axi_addr;
-    //assign axi_ar_addr_o    = {rw_addr_i[63:3], 3'b0};
+    //assign axi_ar_addr_o    = axi_addr;
+    assign axi_ar_addr_o    = {rw_addr_i[63:3], 3'b0};
 
     assign axi_ar_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS;
     assign axi_ar_id_o      = axi_id;
