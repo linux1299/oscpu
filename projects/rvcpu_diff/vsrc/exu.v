@@ -112,6 +112,10 @@ wire        [63:0] srlw_rd_data;
 wire        [63:0] sraw_rd_data;
 wire        [63:0] jal_rd_data;
 
+wire        [31:0] sllw_temp;
+wire        [31:0] srlw_temp;
+wire signed [31:0] sraw_temp;
+
 wire        [63:0] csrrw_wdata;
 wire        [63:0] csrrs_wdata;
 wire        [63:0] csrrc_wdata;
@@ -126,8 +130,7 @@ wire signed [63:0] op1_signed;
 wire signed [63:0] op2_signed;
 
 wire        [31:0] op1_word;
-wire        [63:0] op1_word_ext;
-wire signed [63:0] op1_word_sign_ext;
+wire signed [31:0] op1_word_signed;
 
 wire signed [63:0] pc_signed;
 
@@ -157,11 +160,8 @@ end
 assign op1_signed = $signed(op1);
 assign op2_signed = $signed(op2);
 
-assign op1_word   = op1[31:0];
-
-assign op1_word_ext      = { 32'b0, op1_word};
-assign op1_word_sign_ext = {{32{op1_word[31]}},
-                                op1_word};
+assign op1_word        = op1[31:0];
+assign op1_word_signed = $signed(op1_word);
 
 assign pc_signed  = $signed(i_pc);
 assign shift_bits = op2[5:0];
@@ -214,13 +214,16 @@ assign addw_rd_data = {{32{add_rd_data[31]}}, add_rd_data[31:0]};
 assign subw_rd_data = {{32{sub_rd_data[31]}}, sub_rd_data[31:0]};
 
 // sllw slliw
-assign sllw_rd_data = op1_word_sign_ext << shift_bits[4:0];
+assign sllw_temp    = op1_word << shift_bits[4:0];
+assign sllw_rd_data = {{32{sllw_temp[31]}}, sllw_temp};
 
 // srlw srliw
-assign srlw_rd_data = op1_word_ext >> shift_bits[4:0];
+assign srlw_temp    = op1_word >> shift_bits[4:0];
+assign srlw_rd_data = {{32{srlw_temp[31]}}, srlw_temp};
 
 // sraw sraiw
-assign sraw_rd_data = op1_word_sign_ext >>> shift_bits[4:0];
+assign sraw_temp    = op1_word_signed >>> shift_bits[4:0];
+assign sraw_rd_data = {{32{sraw_temp[31]}}, sraw_temp};
 
 // jal
 assign jal_rd_data  = i_pc + 4;
