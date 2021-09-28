@@ -111,11 +111,6 @@ wire        [63:0] sllw_rd_data;
 wire        [63:0] srlw_rd_data;
 wire        [63:0] sraw_rd_data;
 wire        [63:0] jal_rd_data;
-wire signed [31:0] temp_addw_rd;
-wire signed [31:0] temp_subw_rd;
-wire signed [31:0] temp_sllw_rd;
-wire        [31:0] temp_srlw_rd;
-wire signed [31:0] temp_sraw_rd;
 
 wire        [63:0] csrrw_wdata;
 wire        [63:0] csrrs_wdata;
@@ -129,15 +124,19 @@ reg         [63:0] op2;
 
 wire signed [63:0] op1_signed;
 wire signed [63:0] op2_signed;
-wire signed [31:0] op1_signed_word;
+
+wire        [31:0] op1_word;
+wire        [63:0] op1_word_ext;
+wire signed [63:0] op1_word_sign_ext;
 
 wire signed [63:0] pc_signed;
 
 wire op1_lt_op2_signed;
 wire op1_lt_op2_unsigned;
 
+wire [5:0] shift_bits;
 
-//----------------ALU---------------------
+//-----------------OP-------------------------
 always @(*) begin
     case ({i_forward_ex_rs1, i_forward_ls_rs1})
         2'b10   : op1 = i_ex_ls_rd_data;
@@ -157,8 +156,18 @@ end
 
 assign op1_signed = $signed(op1);
 assign op2_signed = $signed(op2);
-assign pc_signed  = $signed(i_pc);
 
+assign op1_word   = op1[31:0];
+
+assign op1_word_ext      = { 32'b0, op1_word};
+assign op1_word_sign_ext = {{32{op1_word[31]}},
+                                op1_word};
+
+assign pc_signed  = $signed(i_pc);
+assign shift_bits = op2[5:0];
+
+
+//----------------ALU---------------------
 
 // add addi
 assign add_rd_data   = op1_signed + op2_signed;
@@ -178,13 +187,13 @@ assign sltu_rd_data        = {{63{1'b0}}, op1_lt_op2_unsigned};
 assign xor_rd_data = op1 ^ op2;
 
 // sll slli
-assign sll_rd_data = op1 << op2[5:0];
+assign sll_rd_data = op1 << shift_bits;
 
 // srl srli
-assign srl_rd_data = op1 >> op2[5:0];
+assign srl_rd_data = op1 >> shift_bits;
 
 // sra srai
-assign sra_rd_data = op1_signed >>> op2[5:0];
+assign sra_rd_data = op1_signed >>> shift_bits;
 
 // and andi
 assign and_rd_data = op1 & op2;
@@ -199,28 +208,22 @@ assign lui_rd_data = op2;
 assign auipc_rd_data = pc_signed + op2_signed;
 
 // addw addiw
-assign temp_addw_rd = add_rd_data[31:0];
-assign addw_rd_data = {{32{temp_addw_rd[31]}}, temp_addw_rd};
+assign addw_rd_data = {{32{add_rd_data[31]}}, add_rd_data[31:0]};
 
 // subw
-assign temp_subw_rd = sub_rd_data[31:0];
-assign subw_rd_data = {{32{temp_subw_rd[31]}}, temp_subw_rd};
+assign subw_rd_data = {{32{sub_rd_data[31]}}, sub_rd_data[31:0]};
 
 // sllw slliw
-assign temp_sllw_rd = sll_rd_data[31:0];
-assign sllw_rd_data = {{32{temp_sllw_rd[31]}}, temp_sllw_rd};
+assign sllw_rd_data = op1_word_sign_ext << shift_bits[4:0];
 
 // srlw srliw
-assign temp_srlw_rd = op1[31:0] >> op2[4:0];
-assign srlw_rd_data = {{32{temp_srlw_rd[31]}}, temp_srlw_rd};
+assign srlw_rd_data = op1_word_ext >> shift_bits[4:0];
 
 // sraw sraiw
-assign op1_signed_word = op1_signed[31:0];
-assign temp_sraw_rd = op1_signed_word >>> op2[4:0];
-assign sraw_rd_data = {{32{temp_sraw_rd[31]}}, temp_sraw_rd};
+assign sraw_rd_data = op1_word_sign_ext >>> shift_bits[4:0];
 
 // jal
-assign jal_rd_data = i_pc + 4;
+assign jal_rd_data  = i_pc + 4;
 
 
 //------------------CSR wdata--------------
