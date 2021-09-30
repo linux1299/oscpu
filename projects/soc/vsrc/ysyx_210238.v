@@ -57,7 +57,7 @@
 `define AXI_USER_WIDTH  1
 
 // PC
-`define PC_START        64'h30000_0000
+`define PC_START        64'h3000_0000
 
 // Burst types
 `define AXI_BURST_TYPE_FIXED                                2'b00
