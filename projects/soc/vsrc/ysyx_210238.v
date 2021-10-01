@@ -2873,8 +2873,7 @@ assign o_instr_valid = i_ram_ready & ~i_hold;
 // for sim
 always @(*) begin
     if (o_instr_valid) begin
-        $display("pc= %d", o_pc);
-        $display("inst= %d", o_instr);
+        $display("pc= %h", o_pc);
     end
 end
 
