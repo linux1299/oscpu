@@ -424,7 +424,8 @@ ysyx_210238_pipeline_reg#(
 )u1_if_id_reg(
     .clk   ( clk   ),
     .rst_n ( rst_n ),
-    .clear ( (i_ifu_branch_jump & ~o_ctrl_load_use) | ~o_ifu_instr_valid),
+    //.clear ( (i_ifu_branch_jump & ~o_ctrl_load_use) | ~o_ifu_instr_valid),
+    .clear ( (i_ifu_branch_jump & ~o_ctrl_load_use) ),
     .hold  ( o_load_use | o_ctrl_load_use | o_lsu_hold | o_clint_hold ),
     .din   ( o_ifu_pc   ),
     .dout  ( if_id_instr_addr  )
