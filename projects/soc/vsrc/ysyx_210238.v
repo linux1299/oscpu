@@ -2870,6 +2870,14 @@ assign o_instr       = i_ram_rdata;
 
 assign o_instr_valid = i_ram_ready & ~i_hold;
 
+// for sim
+always @(*) begin
+    if (o_instr_valid) begin
+        $display("pc= %d", o_pc);
+        $display("inst= %d", o_instr);
+    end
+end
+
 endmodule
 
 // Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
