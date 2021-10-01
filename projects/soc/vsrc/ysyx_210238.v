@@ -3309,10 +3309,10 @@ assign o_ifu_ready   =  (cur_state == IF_REQ || cur_state == IF_WAIT)
 assign o_ifu_rdata   = i_ram_rdata[31:0];
 
 //-----------lsu port------------
-assign o_lsu_ready   = (cur_state == LS_REQ || cur_state == LS_WAIT)
-                      & i_ram_ready;
+assign o_lsu_ready   = ((cur_state == LS_REQ || cur_state == LS_WAIT)
+                      & i_ram_ready) || (cur_state == LS_REQ && req_to_timer);
 
-assign o_lsu_rdata   = i_ram_rdata;
+assign o_lsu_rdata   = req_to_timer ? i_timer_rdata : i_ram_rdata;
 
 //-----------timer port----------
 assign req_to_timer  = (lsu_addr == `ADDR_MTIME)
