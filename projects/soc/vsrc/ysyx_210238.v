@@ -3348,17 +3348,17 @@ always @(posedge clk) begin
             LS_REQ, LS_WAIT : begin
                 o_ram_addr  <= lsu_addr;
                 o_ram_wen   <= lsu_wen;
-                o_ram_valid <= 1;
+                o_ram_valid <= ~req_to_timer;
                 o_ram_wdata <= lsu_wdata;
                 o_ram_size  <= lsu_size;
             end
 
             default : begin
-                o_ram_addr  <= 0;
-                o_ram_wen   <= 0;
+                o_ram_addr  <= o_ram_addr;
+                o_ram_wen   <= o_ram_wen;
                 o_ram_valid <= 0;
-                o_ram_wdata <= 0;
-                o_ram_size  <= 0;
+                o_ram_wdata <= o_ram_wdata;
+                o_ram_size  <= o_ram_size;
             end
         endcase
     end
