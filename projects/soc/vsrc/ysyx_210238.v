@@ -435,6 +435,8 @@ reg [63:0] if_id_pc;
 always @(posedge clk) begin
     if (~rst_n)
         if_id_pc <= 0;
+    else if (o_clint_int_valid)
+        if_id_pc <= o_clint_int_addr;
     else if (i_ifu_branch_jump)
         if_id_pc <= i_ifu_next_pc;
     else if (o_ifu_instr_valid)
