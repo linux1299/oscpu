@@ -299,7 +299,17 @@ pipeline_reg#(
     .dout  ( if_id_instr_addr  )
 );
 
-
+reg [63:0] if_id_pc;
+always @(posedge clk) begin
+    if (~rst_n)
+        if_id_pc <= 0;
+    else if (o_clint_int_valid)
+        if_id_pc <= o_clint_int_addr;
+    else if (i_ifu_branch_jump)
+        if_id_pc <= i_ifu_next_pc;
+    else if (o_ifu_instr_valid)
+        if_id_pc <= o_ifu_pc;
+end
 
 //==============Stage 2========================
 //---------reg_file---------
@@ -654,7 +664,7 @@ clint u_clint(
     .rst_n            ( rst_n            ),
     .i_timer_int      ( o_timer_int      ),
     .i_expt_info      ( o_idu_csr_info[8:6] ),
-    .i_instr_addr     ( if_id_instr_addr  ),
+    .i_instr_addr     ( if_id_pc          ),
     .i_branch_jump    ( i_ifu_branch_jump ),
     .i_jump_addr      ( i_ifu_next_pc     ),
     .o_int_addr       ( o_clint_int_addr  ),
