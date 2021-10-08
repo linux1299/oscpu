@@ -2811,16 +2811,14 @@ always @(posedge clk) begin
             end
 
             WAIT : begin
-                if (i_hold)
-                    state <= WAIT;
-                else if (i_ram_ready)
+                if (i_ram_ready)
                     state <= OUTP;
                 else
                     state <= WAIT;
             end
 
             OUTP : begin
-                state <= REQ;
+                state <= START;
             end
 
             default : state <= IDLE;
