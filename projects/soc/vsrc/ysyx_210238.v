@@ -2777,12 +2777,13 @@ module ysyx_210238_ifu(
     input     [63:0] i_int_addr
 );
 
-reg [1:0]  state;
+reg [2:0]  state;
 
-localparam IDLE = 2'd0;
-localparam START= 2'd1;
-localparam REQ  = 2'd2;
-localparam WAIT = 2'd3;
+localparam IDLE = 3'd0;
+localparam START= 3'd1;
+localparam REQ  = 3'd2;
+localparam WAIT = 3'd3;
+localparam OUTP = 3'd4;
 
 //-------------State machine-----------
 always @(posedge clk) begin
@@ -2813,9 +2814,13 @@ always @(posedge clk) begin
                 if (i_hold)
                     state <= WAIT;
                 else if (i_ram_ready)
-                    state <= REQ;
+                    state <= OUTP;
                 else
                     state <= WAIT;
+            end
+
+            OUTP : begin
+                state <= REQ;
             end
 
             default : state <= IDLE;
@@ -2827,14 +2832,20 @@ end
 reg  [63:0] ram_addr_r0;
 reg  [63:0] ram_addr_r1;
 reg         ram_valid_r0;
+reg  [31:0] ram_rdata_r0;
+
+always @(posedge clk) begin
+    if(~rst_n) begin
+        ram_rdata_r0 <= `PC_START;
+    end
+    else if (i_ram_ready) begin
+        ram_rdata_r0 <= i_ram_rdata;
+    end
+end
 
 always @(posedge clk) begin
     if(~rst_n) begin
         ram_addr_r0 <= `PC_START;
-    end
-
-    else if(i_hold) begin
-        ram_addr_r0 <= ram_addr_r0;
     end
 
     else if (i_int_valid) begin
@@ -2879,15 +2890,15 @@ assign o_ram_size    = 3'b010;
 
 assign o_pc          = o_ram_addr;
 
-assign o_instr       = i_ram_rdata;
+assign o_instr       = ram_rdata_r0;
 
-assign o_instr_valid = i_ram_ready & ~i_hold;
+assign o_instr_valid = (state == OUTP);
 
 // for sim
-always @(posedge clk) begin
-    if (o_instr_valid)
-        $display("pc = %h", o_pc);
-end
+//always @(posedge clk) begin
+//    if (o_instr_valid)
+//        $display("pc = %h", o_pc);
+//end
 
 endmodule
 
