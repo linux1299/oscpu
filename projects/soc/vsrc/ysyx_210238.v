@@ -2889,8 +2889,7 @@ always @(posedge clk) begin
     end
     else begin
         ram_valid_r0 <= (state == REQ) &
-                        ~i_branch_jump &
-                        ~i_hold;
+                        ~i_branch_jump;
     end
 end
 
