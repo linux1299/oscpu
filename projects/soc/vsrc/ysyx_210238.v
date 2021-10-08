@@ -2811,7 +2811,7 @@ always @(posedge clk) begin
 
             WAIT : begin
                 if (i_hold)
-                    state <= START;
+                    state <= WAIT;
                 else if (i_ram_ready)
                     state <= REQ;
                 else
@@ -3203,9 +3203,7 @@ always @(posedge clk) begin
     if(~rst_n) begin
         req_to_ifu <= 0;
     end
-    else if (cur_state == LS_REQ
-          || cur_state == IF_REQ) begin
-
+    else if (cur_state == LS_REQ) begin
         req_to_ifu <= ~req_to_ifu;
     end
 end
