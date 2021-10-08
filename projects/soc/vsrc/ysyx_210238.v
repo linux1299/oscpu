@@ -1390,8 +1390,8 @@ module ysyx_210238_axi_master_if # (
     assign axi_aw_id_o      = axi_id;
     assign axi_aw_addr_o    = axi_addr[31:0];
     assign axi_aw_len_o     = axi_len;
-    assign axi_aw_size_o    = axi_size;
-    assign axi_aw_burst_o   = `AXI_BURST_TYPE_INCR;
+    assign axi_aw_size_o    = 3'd11;
+    assign axi_aw_burst_o   = `AXI_BURST_TYPE_FIXED;
     assign axi_aw_valid_o   = w_state_addr;
 
     // Write data channel signals
@@ -1433,7 +1433,7 @@ module ysyx_210238_axi_master_if # (
     assign axi_ar_id_o      = axi_id;
     assign axi_ar_len_o     = axi_len;
     assign axi_ar_size_o    = axi_size;
-    assign axi_ar_burst_o   = `AXI_BURST_TYPE_INCR;
+    assign axi_ar_burst_o   = `AXI_BURST_TYPE_FIXED;
 
     // Read data channel signals
     assign axi_r_ready_o    = r_state_read;
