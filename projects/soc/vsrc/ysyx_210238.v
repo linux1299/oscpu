@@ -2783,7 +2783,8 @@ localparam IDLE = 3'd0;
 localparam START= 3'd1;
 localparam REQ  = 3'd2;
 localparam WAIT = 3'd3;
-localparam OUTP = 3'd4;
+localparam HOLD = 3'd4;
+localparam OUTP = 3'd5;
 
 //-------------State machine-----------
 always @(posedge clk) begin
@@ -2813,8 +2814,17 @@ always @(posedge clk) begin
             WAIT : begin
                 if (i_ram_ready)
                     state <= OUTP;
+                else if (i_hold)
+                    state <= HOLD;
                 else
                     state <= WAIT;
+            end
+
+            HOLD : begin
+                if (i_hold)
+                    state <= HOLD;
+                else
+                    state <= OUTP;
             end
 
             OUTP : begin
@@ -2831,15 +2841,19 @@ reg  [63:0] ram_addr_r0;
 reg  [63:0] ram_addr_r1;
 reg         ram_valid_r0;
 reg  [31:0] ram_rdata_r0;
-
+reg  [63:0] pc_r0;
+ 
 always @(posedge clk) begin
     if(~rst_n) begin
-        ram_rdata_r0 <= `PC_START;
+        ram_rdata_r0 <= 0;
+        pc_r0        <= 0;
     end
     else if (i_ram_ready) begin
         ram_rdata_r0 <= i_ram_rdata;
+        pc_r0        <= ram_addr_r0;
     end
 end
+
 
 always @(posedge clk) begin
     if(~rst_n) begin
@@ -2886,7 +2900,7 @@ assign o_ram_valid   = ram_valid_r0;
 
 assign o_ram_size    = 3'b010;
 
-assign o_pc          = o_ram_addr;
+assign o_pc          = pc_r0;
 
 assign o_instr       = ram_rdata_r0;
 
