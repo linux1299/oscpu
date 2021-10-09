@@ -1314,11 +1314,11 @@ module ysyx_210238_axi_master_if # (
     parameter MASK_WIDTH    = 128;
     parameter TRANS_LEN     = 1;
 
-    wire aligned = rw_addr_i[2:0] == 0;
-    wire size_b  = rw_size_i[1:0] == 2'b00;
-    wire size_h  = rw_size_i[1:0] == 2'b01;
-    wire size_w  = rw_size_i[1:0] == 2'b10;
-    wire size_d  = rw_size_i[1:0] == 2'b11;
+    wire aligned = rw_addr_i[2:0] == 3'b000;
+    wire size_b  = rw_size_i[2:0] == 3'b000;
+    wire size_h  = rw_size_i[2:0] == 3'b001;
+    wire size_w  = rw_size_i[2:0] == 3'b010;
+    wire size_d  = rw_size_i[2:0] == 3'b011;
 
     wire [3:0]   addr_op1     = {1'b0, rw_addr_i[2:0]};
 
@@ -1390,7 +1390,7 @@ module ysyx_210238_axi_master_if # (
     assign axi_aw_id_o      = axi_id;
     assign axi_aw_addr_o    = axi_addr[31:0];
     assign axi_aw_len_o     = axi_len;
-    assign axi_aw_size_o    = 3'd11;
+    assign axi_aw_size_o    = 3'b011;
     assign axi_aw_burst_o   = `AXI_BURST_TYPE_FIXED;
     assign axi_aw_valid_o   = w_state_addr;
 
