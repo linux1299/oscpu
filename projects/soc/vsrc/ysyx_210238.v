@@ -2844,16 +2844,40 @@ reg  [63:0] ram_addr_r1;
 reg         ram_valid_r0;
 reg  [31:0] ram_rdata_r0;
 reg  [63:0] pc_r0;
+reg  [63:0] pc_r1;
+reg  [63:0] pc_r2;
 reg  [1:0]  int_cnt;
- 
+reg  [1:0]  vld_cnt;
+
+always @(posedge clk) begin
+    if(~rst_n) begin
+        pc_r1 <= 0;
+        pc_r2 <= 0;
+    end
+    else if (o_ram_valid) begin
+        pc_r1 <= pc_r2;
+        pc_r2 <= o_ram_addr;
+    end
+end
+
+always @(posedge clk) begin
+    if(~rst_n) begin
+        pc_r0 <= 0;
+    end
+    else if (vld_cnt == 2'd1) begin
+        pc_r0 <= pc_r2;
+    end
+    else if (vld_cnt == 2'd2) begin
+        pc_r0 <= pc_r1;
+    end
+end
+
 always @(posedge clk) begin
     if(~rst_n) begin
         ram_rdata_r0 <= 0;
-        pc_r0        <= 0;
     end
     else if (i_ram_ready) begin
         ram_rdata_r0 <= i_ram_rdata;
-        pc_r0        <= ram_addr_r0;
     end
 end
 
@@ -2866,6 +2890,18 @@ always @(posedge clk) begin
     end
     else if (int_cnt > 0 && i_ram_ready) begin
         int_cnt <= int_cnt - 1'b1;
+    end
+end
+
+always @(posedge clk) begin
+    if(~rst_n) begin
+        vld_cnt <= 2'd0;
+    end
+    else if (o_ram_valid) begin
+        vld_cnt <= vld_cnt + 1'b1;
+    end
+    else if (vld_cnt > 0 && o_instr_valid) begin
+        vld_cnt <= vld_cnt - 1'b1;
     end
 end
 
