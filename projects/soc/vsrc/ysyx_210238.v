@@ -2956,10 +2956,10 @@ assign o_instr       = ram_rdata_r0;
 assign o_instr_valid = (state == OUTP);
 
 // for sim
-always @(posedge clk) begin
-    if (o_instr_valid)
-        $display("pc = %h", o_pc);
-end
+//always @(posedge clk) begin
+//    if (o_instr_valid)
+//        $display("pc = %h", o_pc);
+//end
 
 endmodule
 
