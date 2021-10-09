@@ -2883,7 +2883,7 @@ always @(posedge clk) begin
     end
 
     // wait for ready
-    else if(int_cnt == 2'd1 && i_ram_ready) begin
+    else if((int_cnt == 2'd1 || int_cnt == 2'd0) && i_ram_ready) begin
         ram_addr_r0 <= ram_addr_r0 + 4;
     end
 end
