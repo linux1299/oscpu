@@ -2814,9 +2814,9 @@ always @(posedge clk) begin
             end
 
             WAIT : begin
-                if (i_ram_ready)
+                if (i_ram_ready & ~i_hold)
                     state <= OUTP;
-                else if (i_hold)
+                else if (i_ram_ready & i_hold)
                     state <= HOLD;
                 else
                     state <= WAIT;
