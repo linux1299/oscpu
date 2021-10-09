@@ -2844,6 +2844,7 @@ reg  [63:0] ram_addr_r1;
 reg         ram_valid_r0;
 reg  [31:0] ram_rdata_r0;
 reg  [63:0] pc_r0;
+reg  [1:0]  int_cnt;
  
 always @(posedge clk) begin
     if(~rst_n) begin
@@ -2856,6 +2857,17 @@ always @(posedge clk) begin
     end
 end
 
+always @(posedge clk) begin
+    if(~rst_n) begin
+        int_cnt <= 2'd0;
+    end
+    else if (i_int_valid) begin
+        int_cnt <= int_cnt + 1'b1;
+    end
+    else if (i_ram_ready) begin
+        int_cnt <= int_cnt - 1'b1;
+    end
+end
 
 always @(posedge clk) begin
     if(~rst_n) begin
@@ -2871,7 +2883,7 @@ always @(posedge clk) begin
     end
 
     // wait for ready
-    else if(i_ram_ready) begin
+    else if(int_cnt == 2'd1 && i_ram_ready) begin
         ram_addr_r0 <= ram_addr_r0 + 4;
     end
 end
