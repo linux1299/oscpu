@@ -2864,7 +2864,7 @@ always @(posedge clk) begin
     else if (i_int_valid) begin
         int_cnt <= int_cnt + 1'b1;
     end
-    else if (i_ram_ready) begin
+    else if (int_cnt > 0 && i_ram_ready) begin
         int_cnt <= int_cnt - 1'b1;
     end
 end
