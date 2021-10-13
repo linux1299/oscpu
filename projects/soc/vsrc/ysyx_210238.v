@@ -1390,9 +1390,11 @@ module ysyx_210238_axi_master_if # (
     assign axi_aw_id_o      = axi_id;
     assign axi_aw_addr_o    = axi_addr[31:0];
     assign axi_aw_len_o     = axi_len;
-    assign axi_aw_size_o    = ((axi_aw_addr_o >= 32'h1000_0000 && axi_aw_addr_o <= 32'h1000_0fff)
-                            || (axi_aw_addr_o >= 32'h3000_0000 && axi_aw_addr_o <= 32'h3fff_ffff)) ? 3'b010 : axi_size;
+    // assign axi_aw_size_o    = ((axi_aw_addr_o >= 32'h1000_0000 && axi_aw_addr_o <= 32'h1000_0fff)
+                            // || (axi_aw_addr_o >= 32'h3000_0000 && axi_aw_addr_o <= 32'h3fff_ffff)) ? 3'b010 : axi_size;
 
+
+    assign axi_aw_size_o    = (axi_aw_addr_o < 32'h8000_0000) ? 3'b010 : axi_size;
     assign axi_aw_burst_o   = `AXI_BURST_TYPE_FIXED;
     assign axi_aw_valid_o   = w_state_addr;
 
@@ -1447,7 +1449,7 @@ module ysyx_210238_axi_master_if # (
         for (genvar i = 0; i < TRANS_LEN; i = i+1) begin
             always @(posedge clk) begin
                 if (~rst_n) begin
-                    rw_rdata_o[i*AXI_DATA_WIDTH+:AXI_DATA_WIDTH] <= 0;
+                    rw_rdata_o[i*AXI_DATA_WIDTH+:AXI_DATA_WIDTH] <= 0;  
                 end
                 else if (r_hs) begin
                     if (~aligned & crossover) begin
