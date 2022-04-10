@@ -336,18 +336,18 @@ assign forward_lsu_rs2_mem = i_ex_ls_mem_read & i_forward_ls_rs2;
 
 always @(*) begin
 case ({i_forward_ex_rs1, forward_lsu_rs1_rd, forward_lsu_rs1_mem})
-    3'b100  : branch_op1 = i_exu_rd_data;
-    3'b010  : branch_op1 = i_lsu_rd_data;
-    3'b001  : branch_op1 = i_lsu_mem_rdata;
+    // 3'b100  : branch_op1 = i_exu_rd_data;
+    // 3'b010  : branch_op1 = i_lsu_rd_data;
+    // 3'b001  : branch_op1 = i_lsu_mem_rdata;
     default : branch_op1 = i_rs1_rdata;
 endcase
 end
 
 always @(*) begin
 case ({i_forward_ex_rs2, forward_lsu_rs2_rd, forward_lsu_rs2_mem})
-    3'b100  : branch_op2 = i_exu_rd_data;
-    3'b010  : branch_op2 = i_lsu_rd_data;
-    3'b001  : branch_op2 = i_lsu_mem_rdata;
+    // 3'b100  : branch_op2 = i_exu_rd_data;
+    // 3'b010  : branch_op2 = i_lsu_rd_data;
+    // 3'b001  : branch_op2 = i_lsu_mem_rdata;
     default : branch_op2 = i_rs2_rdata;
 endcase
 end

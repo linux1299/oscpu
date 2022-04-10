@@ -45,9 +45,9 @@ always @(*) begin
     if(i_rs1_addr == 5'b0) begin
         o_rs1_rdata = 64'b0;
     end
-    else if(i_wen & (i_addr == i_rs1_addr) & i_rs1_cen) begin
-        o_rs1_rdata = i_wdata;
-    end
+    // else if(i_wen & (i_addr == i_rs1_addr) & i_rs1_cen) begin
+    //     o_rs1_rdata = i_wdata;
+    // end
     else if(i_rs1_cen) begin
         o_rs1_rdata = regs[i_rs1_addr];
     end
@@ -61,9 +61,9 @@ always @(*) begin
     if(i_rs2_addr == 5'b0) begin
         o_rs2_rdata = 64'b0;
     end
-    else if(i_wen & (i_addr == i_rs2_addr) & i_rs2_cen) begin
-        o_rs2_rdata = i_wdata;
-    end
+    // else if(i_wen & (i_addr == i_rs2_addr) & i_rs2_cen) begin
+    //     o_rs2_rdata = i_wdata;
+    // end
     else if(i_rs2_cen) begin
         o_rs2_rdata = regs[i_rs2_addr];
     end

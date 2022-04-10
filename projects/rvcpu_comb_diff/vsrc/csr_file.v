@@ -133,10 +133,10 @@ end
 
 //----------Read CSR---------------------
 always @(*) begin
-    if (i_cpu_csr_wen & (i_cpu_csr_raddr == i_cpu_csr_waddr)) begin
-        o_cpu_csr_rdata = i_cpu_csr_wdata;
-    end
-    else begin
+    // if (i_cpu_csr_wen & (i_cpu_csr_raddr == i_cpu_csr_waddr)) begin
+    //     o_cpu_csr_rdata = i_cpu_csr_wdata;
+    // end
+    // else begin
         case (i_cpu_csr_raddr)
             `ADDR_MSTATUS : o_cpu_csr_rdata = mstatus;
 
@@ -158,7 +158,7 @@ always @(*) begin
 
             default       : o_cpu_csr_rdata = 0;
         endcase
-    end
+    // end
 end
 
 assign o_clint_csr_mtvec   = mtvec;

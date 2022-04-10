@@ -142,16 +142,16 @@ wire [5:0] shift_bits;
 //-----------------OP-------------------------
 always @(*) begin
     case ({i_forward_ex_rs1, i_forward_ls_rs1})
-        2'b10   : op1 = i_ex_ls_rd_data;
-        2'b01   : op1 = i_wbu_rd_wdata;
+        // 2'b10   : op1 = i_ex_ls_rd_data;
+        // 2'b01   : op1 = i_wbu_rd_wdata;
         default : op1 = i_rs1_rdata;
     endcase
 end
 
 always @(*) begin
     casez ({i_forward_ex_rs2, i_forward_ls_rs2, i_op2_is_imm})
-        3'b100  : op2 = i_ex_ls_rd_data;
-        3'b010  : op2 = i_wbu_rd_wdata;
+        // 3'b100  : op2 = i_ex_ls_rd_data;
+        // 3'b010  : op2 = i_wbu_rd_wdata;
         3'b??1  : op2 = i_imm;
         default : op2 = i_rs2_rdata;
     endcase
@@ -273,9 +273,9 @@ assign o_rd_data = ({64{op_alu_add}}   & add_rd_data)
 
 
 assign o_mem_addr  = add_rd_data;
-assign o_mem_wdata = i_forward_ls_rs2 ? i_wbu_rd_wdata :
-                     i_forward_ex_rs2 ? i_ex_ls_rd_data : i_rs2_rdata;
-
+// assign o_mem_wdata = i_forward_ls_rs2 ? i_wbu_rd_wdata :
+//                      i_forward_ex_rs2 ? i_ex_ls_rd_data : i_rs2_rdata;
+assign o_mem_wdata = i_rs2_rdata;
 assign o_ls_info   = i_ls_info;
 assign o_mem_read  = i_mem_read;
 assign o_mem_write = i_mem_write;

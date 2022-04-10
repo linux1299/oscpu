@@ -60,7 +60,7 @@
 `define AXI_USER_WIDTH  1
 
 // PC
-`define PC_START        64'h30000_0000
+`define PC_START        64'h80000_0000
 
 // priv mode
 `define RISCV_PRIV_MODE_U   0
