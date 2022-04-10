@@ -366,6 +366,7 @@ module axi_master_if # (
     assign axi_ar_user_o    = axi_user;
     assign axi_ar_len_o     = axi_len;
     assign axi_ar_size_o    = axi_size;
+    assign axi_ar_size_o    = 3'B011;
 
     assign axi_ar_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_ar_lock_o    = 1'b0;
