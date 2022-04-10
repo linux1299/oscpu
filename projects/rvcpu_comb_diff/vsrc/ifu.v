@@ -58,7 +58,7 @@ always @(posedge clk) begin
     if(~rst_n) begin
         o_ram_valid <= 0;
     end
-    else begin
+    else if (~i_hold) begin
         o_ram_valid <= 1;
     end
 end
