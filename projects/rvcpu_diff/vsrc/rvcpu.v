@@ -1078,7 +1078,7 @@ always @(posedge clk) begin
     trap      <= ls_wb_inst[6:0] == 7'h6b;
     trap_code <= u_reg_file.regs[10][7:0];
     cycleCnt  <= cycleCnt + 1;
-    instrCnt  <= o_wbu_rd_wen | ls_wb_ready;
+    instrCnt  <= instrCnt + (o_wbu_rd_wen | ls_wb_ready);
   end
 end
 
