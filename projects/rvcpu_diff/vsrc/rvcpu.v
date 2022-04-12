@@ -120,8 +120,8 @@ wire [63:0] ram_timer_wdata_o;
 
 
 
-wire [31:0] if_id_instr = if_id_data[95-:64];
-wire [63:0] if_id_pc = if_id_data[31:0];
+wire [31:0] if_id_instr = if_id_data[95-:32];
+wire [63:0] if_id_pc = if_id_data[63:0];
 
 wire [4:0]  id_ex_rs1_addr = id_ex_data[400-:5];
 wire [4:0]  id_ex_rs2_addr = id_ex_data[395-:5];
