@@ -26,6 +26,7 @@ wire [7:0]  ram_wmask = 8'hf;
 
 reg  [63:0] ram_rw_data_i;
 reg         ram_rw_ready_i;
+reg  [63:0] ram_data_o;
 
 // ------------- cpu core -----------------
 rvcpu u_rvcpu(
@@ -41,20 +42,30 @@ rvcpu u_rvcpu(
 );
 
 // ----------------- ram ------------------
-// always @(posedge clock) begin
-//     ram_write_helper((ram_rw_addr_o-64'h0000_0000_8000_0000)>>3, ram_rw_wdata_o, ram_wmask, ram_rw_wen_o);
+// RAMHelper RAMHelper(
+//     .clk   ( clock   ),
+//     .en    ( ram_rw_cen_o    ),
+//     .rIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
+//     .rdata ( ram_data_o ),
+//     .wIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
+//     .wdata ( ram_rw_wdata_o ),
+//     .wmask ( ram_wmask ),
+//     .wen   ( ram_rw_wen_o   )
+// );
 
-//     if (ram_rw_cen_o) begin
-//         ram_rw_ready_i <= 1'b1;
-//     end
-//     else begin
-//         ram_rw_ready_i <= 1'b0;
-//     end
+always @(posedge clock) begin
+
+    if (ram_rw_cen_o) begin
+        ram_rw_ready_i <= 1'b1;
+    end
+    else begin
+        ram_rw_ready_i <= 1'b0;
+    end
     
-//     if (ram_rw_cen_o && ~ram_rw_wen_o) begin
-//         ram_rw_data_i <= ram_read_helper(ram_rw_cen_o, {3'b000,(ram_rw_addr_o-64'h0000_0000_8000_0000)>>3});
-//     end
-// end
+    if (ram_rw_cen_o && ~ram_rw_wen_o) begin
+        ram_rw_data_i <= ram_data_o;
+    end
+end
 
 
 // ------------ Difftest ----------------
