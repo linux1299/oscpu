@@ -22,7 +22,7 @@ wire ram_rw_wen_o  ;
 wire [63:0] ram_rw_addr_o ;
 wire [63:0] ram_rw_wdata_o;
 wire [2:0]  ram_rw_size_o ;
-wire [63:0]  ram_wmask = 64'hffff_ffff_ffff_ffff;
+wire [63:0]  ram_wmask = 64'hff;
 
 reg  [63:0] ram_rw_data_i;
 reg         ram_rw_ready_i;
