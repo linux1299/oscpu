@@ -269,8 +269,8 @@ pipeline_reg#(
 )u_pipeline_reg_id_ex(
     .clk     ( clk     ),
     .rst_n   ( rst_n   ),
-    .clear_i (  ),
-    .hold_i  (   ),
+    .clear_i ( 1'b0 ),
+    .hold_i  ( lsu_hold_o || clint_hold_o ),
     .data_i  ( {idu_rs1_addr_o,
                 idu_rs2_addr_o,
                 idu_rs1_cen_o,
