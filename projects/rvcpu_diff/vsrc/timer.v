@@ -9,14 +9,14 @@ module timer (
     input             clk,
     input             rst_n,
 
-    output            o_timer_int,
+    output            timer_int_o,
 
     // cpu port
-    input             i_wen,
-    input             i_valid,
-    input      [63:0] i_addr,
-    input      [63:0] i_wdata,
-    output reg [63:0] o_rdata
+    input             cen_i,
+    input             wen_i,
+    input      [63:0] addr_i,
+    input      [63:0] wdata_i,
+    output reg [63:0] timer_rdata_o
 
 );
 
@@ -28,11 +28,11 @@ always @(posedge clk) begin
         mtime    <= 0;
         mtimecmp <= 0;
     end
-    else if (i_wen & i_valid) begin
-        case (i_addr)
-            `ADDR_MTIME :    mtime    <= i_wdata;
+    else if (wen_i & cen_i) begin
+        case (addr_i)
+            `ADDR_MTIME :    mtime    <= wdata_i;
 
-            `ADDR_MTIMECMP : mtimecmp <= i_wdata;
+            `ADDR_MTIMECMP : mtimecmp <= wdata_i;
         endcase
     end
     else begin
@@ -42,15 +42,15 @@ always @(posedge clk) begin
 end
 
 always @(*) begin
-    case (i_addr)
-        `ADDR_MTIME :    o_rdata = mtime;
+    case (addr_i)
+        `ADDR_MTIME :    timer_rdata_o = mtime;
 
-        `ADDR_MTIMECMP : o_rdata = mtimecmp;
+        `ADDR_MTIMECMP : timer_rdata_o = mtimecmp;
 
-        default :        o_rdata = 0;
+        default :        timer_rdata_o = 0;
     endcase
 end
 
-assign o_timer_int = (mtime >= mtimecmp);
+assign timer_int_o = (mtime >= mtimecmp);
 
 endmodule

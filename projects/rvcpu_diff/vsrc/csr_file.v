@@ -9,27 +9,27 @@ module csr_file (
     input             rst_n,
 
     // cpu port
-    input             i_cpu_csr_wen,
-    input      [11:0] i_cpu_csr_raddr,
-    input      [11:0] i_cpu_csr_waddr,
-    input      [63:0] i_cpu_csr_wdata,
-    output reg [63:0] o_cpu_csr_rdata,
+    input             cpu_csr_wen_i,
+    input      [11:0] cpu_csr_raddr_i,
+    input      [11:0] cpu_csr_waddr_i,
+    input      [63:0] cpu_csr_wdata_i,
+    output reg [63:0] csrfile_cpu_csr_rdata_o,
 
     // clint port
-    input             i_clint_csr_wen,
-    input      [11:0] i_clint_csr_waddr,
-    input      [63:0] i_clint_csr_wdata,
+    input             clint_csr_wen_i,
+    input      [11:0] clint_csr_waddr_i,
+    input      [63:0] clint_csr_wdata_i,
 
-    output     [63:0] o_clint_csr_mtvec,
-    output     [63:0] o_clint_csr_mepc,
-    output     [63:0] o_clint_csr_mstatus,
+    output     [63:0] csrfile_clint_csr_mtvec_o,
+    output     [63:0] csrfile_clint_csr_mepc_o,
+    output     [63:0] csrfile_clint_csr_mstatus_o,
 
-    output            o_global_int_en,
-    output            o_mtime_int_en,
-    output            o_mtime_int_pend,
+    output            csrfile_global_int_en_o,
+    output            csrfile_mtime_int_en_o,
+    output            csrfile_mtime_int_pend_o,
 
     // timer port
-    input             i_timer_int
+    input             timer_int_i
 );
 
 //---------CSR--------
@@ -60,7 +60,7 @@ always @(posedge clk) begin
         mip <= 0;
     end
     else begin
-        mip <= i_timer_int;
+        mip <= timer_int_i;
     end
 end
 
@@ -75,98 +75,82 @@ always @(posedge clk) begin
         mtval   <= 0;
         mhartid <= 0;
     end
-    else if (i_cpu_csr_wen) begin
-        case (i_cpu_csr_waddr)
-            `ADDR_MSTATUS : mstatus <= i_cpu_csr_wdata;
+    else if (cpu_csr_wen_i) begin
+        case (cpu_csr_waddr_i)
+            `ADDR_MSTATUS : mstatus <= cpu_csr_wdata_i;
 
-            `ADDR_MIE     : mie     <= i_cpu_csr_wdata;
+            `ADDR_MIE     : mie     <= cpu_csr_wdata_i;
 
-            `ADDR_MTVEC   : mtvec   <= i_cpu_csr_wdata;
+            `ADDR_MTVEC   : mtvec   <= cpu_csr_wdata_i;
 
-            `ADDR_MEPC    : mepc    <= i_cpu_csr_wdata;
+            `ADDR_MEPC    : mepc    <= cpu_csr_wdata_i;
 
-            `ADDR_MCAUSE  : mcause  <= i_cpu_csr_wdata;
+            `ADDR_MCAUSE  : mcause  <= cpu_csr_wdata_i;
 
-            `ADDR_MTVAL   : mtval   <= i_cpu_csr_wdata;
+            `ADDR_MTVAL   : mtval   <= cpu_csr_wdata_i;
 
-            `ADDR_MHARTID : mhartid <= i_cpu_csr_wdata;
-
-            default : begin
-                mstatus <= mstatus;
-                mie     <= mie;
-                mtvec   <= mtvec;
-                mepc    <= mepc;
-                mcause  <= mcause;
-                mtval   <= mtval;
-                mhartid <= mhartid;
-            end
+            `ADDR_MHARTID : mhartid <= cpu_csr_wdata_i;
+            
+            default : mstatus <= mstatus;
         endcase
     end
-    else if (i_clint_csr_wen) begin
-        case (i_clint_csr_waddr)
-            `ADDR_MSTATUS : mstatus <= i_clint_csr_wdata;
+    else if (clint_csr_wen_i) begin
+        case (clint_csr_waddr_i)
+            `ADDR_MSTATUS : mstatus <= clint_csr_wdata_i;
 
-            `ADDR_MIE     : mie     <= i_clint_csr_wdata;
+            `ADDR_MIE     : mie     <= clint_csr_wdata_i;
 
-            `ADDR_MTVEC   : mtvec   <= i_clint_csr_wdata;
+            `ADDR_MTVEC   : mtvec   <= clint_csr_wdata_i;
 
-            `ADDR_MEPC    : mepc    <= i_clint_csr_wdata;
+            `ADDR_MEPC    : mepc    <= clint_csr_wdata_i;
 
-            `ADDR_MCAUSE  : mcause  <= i_clint_csr_wdata;
+            `ADDR_MCAUSE  : mcause  <= clint_csr_wdata_i;
 
-            `ADDR_MTVAL   : mtval   <= i_clint_csr_wdata;
+            `ADDR_MTVAL   : mtval   <= clint_csr_wdata_i;
 
-            `ADDR_MHARTID : mhartid <= i_clint_csr_wdata;
+            `ADDR_MHARTID : mhartid <= clint_csr_wdata_i;
 
-            default : begin
-                mstatus <= mstatus;
-                mie     <= mie;
-                mtvec   <= mtvec;
-                mepc    <= mepc;
-                mcause  <= mcause;
-                mtval   <= mtval;
-                mhartid <= mhartid;
-            end
+            default : mstatus <= mstatus;
         endcase
     end
 end
 
 //----------Read CSR---------------------
 always @(*) begin
-    if (i_cpu_csr_wen & (i_cpu_csr_raddr == i_cpu_csr_waddr)) begin
-        o_cpu_csr_rdata = i_cpu_csr_wdata;
+    if (cpu_csr_wen_i & (cpu_csr_raddr_i == cpu_csr_waddr_i)) begin
+        csrfile_cpu_csr_rdata_o = cpu_csr_wdata_i;
     end
     else begin
-        case (i_cpu_csr_raddr)
-            `ADDR_MSTATUS : o_cpu_csr_rdata = mstatus;
+        case (cpu_csr_raddr_i)
+            `ADDR_MSTATUS : csrfile_cpu_csr_rdata_o = mstatus;
 
-            `ADDR_MIE     : o_cpu_csr_rdata = mie;
+            `ADDR_MIE     : csrfile_cpu_csr_rdata_o = mie;
 
-            `ADDR_MTVEC   : o_cpu_csr_rdata = mtvec;
+            `ADDR_MTVEC   : csrfile_cpu_csr_rdata_o = mtvec;
 
-            `ADDR_MEPC    : o_cpu_csr_rdata = mepc;
+            `ADDR_MEPC    : csrfile_cpu_csr_rdata_o = mepc;
 
-            `ADDR_MCAUSE  : o_cpu_csr_rdata = mcause;
+            `ADDR_MCAUSE  : csrfile_cpu_csr_rdata_o = mcause;
 
-            `ADDR_MTVAL   : o_cpu_csr_rdata = mtval;
+            `ADDR_MTVAL   : csrfile_cpu_csr_rdata_o = mtval;
 
-            `ADDR_MIP     : o_cpu_csr_rdata = mip;
+            `ADDR_MIP     : csrfile_cpu_csr_rdata_o = mip;
 
-            `ADDR_MCYCLE  : o_cpu_csr_rdata = mcycle;
+            `ADDR_MCYCLE  : csrfile_cpu_csr_rdata_o = mcycle;
 
-            `ADDR_MHARTID : o_cpu_csr_rdata = mhartid;
+            `ADDR_MHARTID : csrfile_cpu_csr_rdata_o = mhartid;
 
-            default       : o_cpu_csr_rdata = 0;
+            default       : csrfile_cpu_csr_rdata_o = 0;
         endcase
     end
 end
 
-assign o_clint_csr_mtvec   = mtvec;
-assign o_clint_csr_mepc    = mepc;
-assign o_clint_csr_mstatus = mstatus;
+assign csrfile_clint_csr_mtvec_o   = mtvec;
+assign csrfile_clint_csr_mepc_o    = mepc;
+assign csrfile_clint_csr_mstatus_o = mstatus;
 
-assign o_global_int_en     = mstatus[3];
-assign o_mtime_int_en      = mie[7];
-assign o_mtime_int_pend    = mip[7];
+assign csrfile_global_int_en_o     = mstatus[3];
+assign csrfile_mtime_int_en_o      = mie[7];
+assign csrfile_mtime_int_pend_o    = mip[7];
 
 endmodule

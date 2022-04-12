@@ -7,26 +7,20 @@
 
 module wbu(
     // wb
-    input  [63:0] i_rd_data,
-    input  [4:0]  i_rd_addr,
-    input  [63:0] i_mem_rdata,
-
-    // wb control
-    input         i_rd_wen,
-    input         i_mem_read,
+    input  [63:0] rd_data_i,
+    input  [4:0]  rd_addr_i,
+    input         rd_wen_i,
+    input         mem_read_i,
+    input  [63:0] mem_rdata_i,
 
     // reg_file
-    output        o_rd_wen,
-    output [4:0]  o_rd_addr,
-    output [63:0] o_rd_wdata
+    output        wbu_rd_wen_o,
+    output [4:0]  wbu_rd_addr_o,
+    output [63:0] wbu_rd_wdata_o
 );
 
-assign o_rd_wen   = i_rd_wen;
-
-assign o_rd_addr  = i_rd_addr;
-
-assign o_rd_wdata = i_mem_read ? i_mem_rdata : i_rd_data;
-
-
+assign wbu_rd_wen_o   = rd_wen_i;
+assign wbu_rd_addr_o  = rd_addr_i;
+assign wbu_rd_wdata_o = mem_read_i ? mem_rdata_i : rd_data_i;
 
 endmodule // wbu

@@ -7,73 +7,70 @@
 `include "defines.v"
 
 module idu(
-    // if
-    input [31:0]  i_instr,
-    input [63:0]  i_instr_addr,
-    output[63:0]  o_next_pc,
+    // ifu ports
+    input [63:0]  pc_i,
+    input [31:0]  instr_i,
+    input         instr_valid_i,
+    output        idu_jump_o,
+    output[63:0]  idu_jump_pc_o,
 
-    // if control
-    output        o_branch_jump,
 
-    // reg_file
-    input  [63:0] i_rs1_rdata,
-    input  [63:0] i_rs2_rdata,
-    output [4:0]  o_rs1_addr,
-    output [4:0]  o_rs2_addr,
-    output        o_rs1_cen,
-    output        o_rs2_cen,
+    // reg_file ports
+    input  [63:0] rs1_rdata_i,
+    input  [63:0] rs2_rdata_i,
+    output [4:0]  idu_rs1_addr_o,
+    output [4:0]  idu_rs2_addr_o,
+    output        idu_rs1_cen_o,
+    output        idu_rs2_cen_o,
 
-    // ex
-    output [63:0] o_imm,
-    output [63:0] o_rs1_rdata,
-    output [63:0] o_rs2_rdata,
-    output [63:0] o_pc,
-
-    // ex control
-    output [12:0] o_alu_info,
-    output [8:0]  o_csr_info,
-    output        o_op2_is_imm,
-    output        o_op_is_jal,
+    // exu ports
+    output [63:0] idu_imm_o,
+    output [63:0] idu_rs1_rdata_o,
+    output [63:0] idu_rs2_rdata_o,
+    output [63:0] idu_pc_o,
+    output [12:0] idu_alu_info_o,
+    output [8:0]  idu_csr_info_o,
+    output        idu_op2_is_imm_o,
+    output        idu_op_is_jal_o,
 
     // ls control
-    output [10:0] o_ls_info,
-    output        o_mem_read,
-    output        o_mem_write,
+    output [10:0] idu_ls_info_o,
+    output        idu_mem_read_o,
+    output        idu_mem_write_o,
 
     // wb control
-    output        o_rd_wen,
-    output [4:0]  o_rd_addr,
+    output        idu_rd_wen_o,
+    output [4:0]  idu_rd_addr_o,
 
     // ctrl hazard
-    output        o_op_is_branch,
-    input         i_forward_ex_rs1,
-    input         i_forward_ex_rs2,
-    input         i_forward_ls_rs1,
-    input         i_forward_ls_rs2,
-    input         i_ex_ls_mem_read,
+    output        idu_op_is_branch_o,
+    input         forward_ex_rs1_i,
+    input         forward_ex_rs2_i,
+    input         forward_ls_rs1_i,
+    input         forward_ls_rs2_i,
+    input         ex_ls_mem_read_i,
+    input [63:0]  exu_rd_data_i,
+    input [63:0]  lsu_rd_data_i,
+    input [63:0]  lsu_mem_rdata_i,
 
-    input [63:0]  i_exu_rd_data,
-    input [63:0]  i_lsu_rd_data,
-    input [63:0]  i_lsu_mem_rdata,
-
-    // csr
-    input  [63:0] i_csr_rdata,
-    output        o_csr_wen,
-    output [63:0] o_csr_rdata,
-    output [11:0] o_csr_raddr,
-    output [11:0] o_csr_waddr
+    // csr ports
+    input  [63:0] csr_rdata_i,
+    output        idu_csr_wen_o,
+    output [63:0] idu_csr_rdata_o,
+    output [11:0] idu_csr_raddr_o,
+    output [11:0] idu_csr_waddr_o
 
 );
 
 
 //----------Pre decode--------------
-wire [6:0]  opcode = i_instr[6:0];
-wire [4:0]  rd     = i_instr[11:7];
-wire [4:0]  rs1    = i_instr[19:15];
-wire [4:0]  rs2    = i_instr[24:20];
-wire [2:0]  func3  = i_instr[14:12];
-wire [6:0]  func7  = i_instr[31:25];
-wire [11:0] csr    = i_instr[31:20];
+wire [6:0]  opcode = {7{instr_valid_i}} & instr_i[6:0];
+wire [4:0]  rd     = {5{instr_valid_i}} & instr_i[11:7];
+wire [4:0]  rs1    = {5{instr_valid_i}} & instr_i[19:15];
+wire [4:0]  rs2    = {5{instr_valid_i}} & instr_i[24:20];
+wire [2:0]  func3  = {3{instr_valid_i}} & instr_i[14:12];
+wire [6:0]  func7  = {7{instr_valid_i}} & instr_i[31:25];
+wire [11:0] csr    = {12{instr_valid_i}}& instr_i[31:20];
 
 
 wire instr_op_is_imm   = (opcode == `INSTR_I);
@@ -124,8 +121,8 @@ wire instr_sraw   = instr_op_is_word & func3_is_101 & func7_is_0100000;
 wire instr_addw   = instr_op_is_word & func3_is_000 & func7_is_0000000;
 wire instr_sllw   = instr_op_is_word & func3_is_001 & func7_is_0000000;
 
-wire instr_tmp_0  = (i_instr[31:26] == 6'b000000);
-wire instr_tmp_1  = (i_instr[31:26] == 6'b010000);
+wire instr_tmp_0  = (instr_i[31:26] == 6'b000000);
+wire instr_tmp_1  = (instr_i[31:26] == 6'b010000);
 
 wire instr_addi   = instr_op_is_imm & func3_is_000;
 wire instr_andi   = instr_op_is_imm & func3_is_111;
@@ -276,29 +273,29 @@ wire op2_is_imm =     instr_type_i
                     | instr_type_u
                     | instr_type_j;
 
-wire [63:0] i_imm = {{52{i_instr[31]}},
-                         i_instr[31:20]};
+wire [63:0] i_imm = {{52{instr_i[31]}},
+                         instr_i[31:20]};
 
-wire [63:0] s_imm = {{52{i_instr[31]}},
-                         i_instr[31:25],
-                         i_instr[11:7]};
+wire [63:0] s_imm = {{52{instr_i[31]}},
+                         instr_i[31:25],
+                         instr_i[11:7]};
 
-wire [63:0] b_imm = {{51{i_instr[31]}},
-                         i_instr[31],
-                         i_instr[7],
-                         i_instr[30:25],
-                         i_instr[11:8],
+wire [63:0] b_imm = {{51{instr_i[31]}},
+                         instr_i[31],
+                         instr_i[7],
+                         instr_i[30:25],
+                         instr_i[11:8],
                          1'b0};
 
-wire [63:0] u_imm = {{32{i_instr[31]}},
-                         i_instr[31:12],
+wire [63:0] u_imm = {{32{instr_i[31]}},
+                         instr_i[31:12],
                          12'b0};
 
-wire [63:0] j_imm = {{43{i_instr[31]}},
-                         i_instr[31],
-                         i_instr[19:12],
-                         i_instr[20],
-                         i_instr[30:21],
+wire [63:0] j_imm = {{43{instr_i[31]}},
+                         instr_i[31],
+                         instr_i[19:12],
+                         instr_i[20],
+                         instr_i[30:21],
                          1'b0};
 
 wire [63:0] csr_imm = {59'b0, rs1};
@@ -316,7 +313,7 @@ wire [63:0] imm =
 //------------branch/jal/jalr------------
 
 wire signed [63:0] imm_signed = $signed(imm);
-wire signed [63:0] pc_signed  = $signed(i_instr_addr);
+wire signed [63:0] pc_signed  = $signed(pc_i);
 
 reg         [63:0] branch_op1;
 reg         [63:0] branch_op2;
@@ -328,27 +325,27 @@ wire               forward_lsu_rs2_rd;
 wire               forward_lsu_rs1_mem;
 wire               forward_lsu_rs2_mem;
 
-assign forward_lsu_rs1_rd = ~i_ex_ls_mem_read & i_forward_ls_rs1;
-assign forward_lsu_rs2_rd = ~i_ex_ls_mem_read & i_forward_ls_rs2;
-assign forward_lsu_rs1_mem = i_ex_ls_mem_read & i_forward_ls_rs1;
-assign forward_lsu_rs2_mem = i_ex_ls_mem_read & i_forward_ls_rs2;
+assign forward_lsu_rs1_rd = ~ex_ls_mem_read_i & forward_ls_rs1_i;
+assign forward_lsu_rs2_rd = ~ex_ls_mem_read_i & forward_ls_rs2_i;
+assign forward_lsu_rs1_mem = ex_ls_mem_read_i & forward_ls_rs1_i;
+assign forward_lsu_rs2_mem = ex_ls_mem_read_i & forward_ls_rs2_i;
 
 
 always @(*) begin
-case ({i_forward_ex_rs1, forward_lsu_rs1_rd, forward_lsu_rs1_mem})
-    3'b100  : branch_op1 = i_exu_rd_data;
-    3'b010  : branch_op1 = i_lsu_rd_data;
-    3'b001  : branch_op1 = i_lsu_mem_rdata;
-    default : branch_op1 = i_rs1_rdata;
+case ({forward_ex_rs1_i, forward_lsu_rs1_rd, forward_lsu_rs1_mem})
+    3'b100  : branch_op1 = exu_rd_data_i;
+    3'b010  : branch_op1 = lsu_rd_data_i;
+    3'b001  : branch_op1 = lsu_mem_rdata_i;
+    default : branch_op1 = rs1_rdata_i;
 endcase
 end
 
 always @(*) begin
-case ({i_forward_ex_rs2, forward_lsu_rs2_rd, forward_lsu_rs2_mem})
-    3'b100  : branch_op2 = i_exu_rd_data;
-    3'b010  : branch_op2 = i_lsu_rd_data;
-    3'b001  : branch_op2 = i_lsu_mem_rdata;
-    default : branch_op2 = i_rs2_rdata;
+case ({forward_ex_rs2_i, forward_lsu_rs2_rd, forward_lsu_rs2_mem})
+    3'b100  : branch_op2 = exu_rd_data_i;
+    3'b010  : branch_op2 = lsu_rd_data_i;
+    3'b001  : branch_op2 = lsu_mem_rdata_i;
+    default : branch_op2 = rs2_rdata_i;
 endcase
 end
 
@@ -384,48 +381,49 @@ wire signed[63:0] jalr_next_pc = {temp_jalr_next_pc[63:1], 1'b0};
 
 
 //-----------Output----------------
-assign o_branch_jump = flag_branch | instr_jal | instr_jalr;
+assign idu_jump_o = flag_branch | instr_jal | instr_jalr;
 
-assign o_next_pc = ({64{flag_branch | instr_jal}} & bjal_next_pc)
-                |  ({64{instr_jalr}}              & jalr_next_pc);
+assign idu_jump_pc_o = ({64{flag_branch | instr_jal}} & bjal_next_pc)
+                    |  ({64{instr_jalr}}              & jalr_next_pc);
 
-assign o_rs1_addr   = rs1;
-assign o_rs2_addr   = rs2;
-assign o_rs1_cen    = ~(instr_type_u | instr_type_j);
-assign o_rs2_cen    = ~(instr_type_u | instr_type_j | instr_type_i);
+assign idu_rs1_addr_o   = rs1;
+assign idu_rs2_addr_o   = rs2;
+assign idu_rs1_cen_o    = ~(instr_type_u | instr_type_j);
+assign idu_rs2_cen_o    = ~(instr_type_u | instr_type_j | instr_type_i);
 
-assign o_imm        = imm;
-assign o_rs1_rdata  = i_rs1_rdata;
-assign o_rs2_rdata  = i_rs2_rdata;
-assign o_pc         = i_instr_addr;
+assign idu_imm_o        = imm;
+assign idu_rs1_rdata_o  = rs1_rdata_i;
+assign idu_rs2_rdata_o  = rs2_rdata_i;
+assign idu_pc_o         = pc_i;
 
-assign o_alu_info   = op_alu_info;
-assign o_csr_info   = op_csr_info;
-assign o_op2_is_imm = op2_is_imm;
-assign o_op_is_jal  = instr_jal | instr_jalr;
+assign idu_alu_info_o   = op_alu_info;
+assign idu_csr_info_o   = op_csr_info;
+assign idu_op2_is_imm_o = op2_is_imm;
+assign idu_op_is_jal_o  = instr_jal | instr_jalr;
 
-assign o_ls_info    = op_ls_info[10:0];
-assign o_mem_read   = op_ls_info[12];
-assign o_mem_write  = op_ls_info[11];
+assign idu_ls_info_o    = op_ls_info[10:0];
+assign idu_mem_read_o   = op_ls_info[12];
+assign idu_mem_write_o  = op_ls_info[11];
 
-assign o_rd_wen     = (~instr_type_s) &
+assign idu_rd_wen_o     = (~instr_type_s) &
                       (~instr_type_b) &
                       (~instr_ebreak) &
                       (~instr_ecall ) &
                       (~instr_mret  ) &
-                      ~(i_instr == 32'd0)
+                      (~instr_op_is_fence) &
+                      ~(instr_i == 32'd0)
                     ;
 
-assign o_rd_addr    = rd;
+assign idu_rd_addr_o    = rd;
 
-assign o_op_is_branch = instr_op_is_branch | instr_op_is_jalr;
+assign idu_op_is_branch_o = instr_op_is_branch | instr_op_is_jalr;
 
 
-assign o_csr_raddr  = csr;
-assign o_csr_waddr  = csr;
-assign o_csr_rdata  = i_csr_rdata;
+assign idu_csr_raddr_o  = csr;
+assign idu_csr_waddr_o  = csr;
+assign idu_csr_rdata_o  = csr_rdata_i;
 
-assign o_csr_wen    = instr_csrrw
+assign idu_csr_wen_o    = instr_csrrw
                     | instr_csrrs
                     | instr_csrrc;
 

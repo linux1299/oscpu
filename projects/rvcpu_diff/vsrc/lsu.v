@@ -10,48 +10,45 @@ module lsu(
     input            rst_n,
 
     // ls
-    input     [63:0] i_mem_addr,
-    input     [63:0] i_mem_wdata,
-    input     [10:0] i_ls_info,
-    input            i_mem_read,
-    input            i_mem_write,
+    input     [63:0] mem_addr_i,
+    input     [63:0] mem_wdata_i,
+    input            mem_read_i,
+    input            mem_write_i,
+    input     [10:0] ls_info_i,
 
     // ram port
-    output    [63:0] o_ram_addr,
-    output           o_ram_wen,
-    output           o_ram_valid,
-    // ready also indicates rdata is valid
-    input            i_ram_ready,
-    output    [63:0] o_ram_wdata,
-    output    [2:0]  o_ram_size,
-    input     [63:0] i_ram_rdata,
+    output           lsu_ram_cen_o,
+    output           lsu_ram_wen_o,
+    output    [63:0] lsu_ram_addr_o,
+    output    [2:0]  lsu_ram_size_o,
+    output    [63:0] lsu_ram_wdata_o,
+    input     [63:0] lsu_ram_data_i,
+    input            lsu_ram_ready_i,
 
     // wb
-    input     [63:0] i_rd_data,
-    input     [4:0]  i_rd_addr,
-    output    [63:0] o_rd_data,
-    output    [4:0]  o_rd_addr,
-    output    [63:0] o_mem_rdata,
-    // wb control
-    input            i_rd_wen,
-    output           o_rd_wen,
-    output           o_mem_read,
-
-    output           o_hold
+    input            rd_wen_i,
+    input     [63:0] rd_data_i,
+    input     [4:0]  rd_addr_i,
+    output           lsu_rd_wen_o,
+    output    [63:0] lsu_rd_data_o,
+    output    [4:0]  lsu_rd_addr_o,
+    output    [63:0] lsu_mem_rdata_o,
+    output           lsu_mem_read_o,
+    output           lsu_hold_o
 );
 
 
-wire op_ls_lb  = i_ls_info[10];
-wire op_ls_lbu = i_ls_info[9];
-wire op_ls_ld  = i_ls_info[8];
-wire op_ls_lh  = i_ls_info[7];
-wire op_ls_lhu = i_ls_info[6];
-wire op_ls_lw  = i_ls_info[5];
-wire op_ls_lwu = i_ls_info[4];
-wire op_ls_sb  = i_ls_info[3];
-wire op_ls_sd  = i_ls_info[2];
-wire op_ls_sh  = i_ls_info[1];
-wire op_ls_sw  = i_ls_info[0];
+wire op_ls_lb  = ls_info_i[10];
+wire op_ls_lbu = ls_info_i[9];
+wire op_ls_ld  = ls_info_i[8];
+wire op_ls_lh  = ls_info_i[7];
+wire op_ls_lhu = ls_info_i[6];
+wire op_ls_lw  = ls_info_i[5];
+wire op_ls_lwu = ls_info_i[4];
+wire op_ls_sb  = ls_info_i[3];
+wire op_ls_sd  = ls_info_i[2];
+wire op_ls_sh  = ls_info_i[1];
+wire op_ls_sw  = ls_info_i[0];
 
 wire [63:0] lb_rdata;
 wire [63:0] lh_rdata;
@@ -72,9 +69,9 @@ wire [2:0]  w_size = 3'b010;
 wire [2:0]  d_size = 3'b011;
 wire [2:0]  size;
 
-wire        i_mem_cen = i_mem_read | i_mem_write;
-
-reg  [1:0]  state;
+wire        mem_req = mem_read_i | mem_write_i;
+reg  [1:0]  cur_state;
+reg  [1:0]  nxt_state;
 
 localparam IDLE = 2'd0;
 localparam REQ  = 2'd1;
@@ -83,109 +80,88 @@ localparam WAIT = 2'd2;
 //-------------State machine-----------
 always @(posedge clk) begin
     if(~rst_n) begin
-        state <= IDLE;
+        cur_state <= IDLE;
     end
     else begin
-        case (state)
-            IDLE : begin
-                if (i_mem_cen)
-                    state <= REQ;
-                else
-                    state <= IDLE;
-                end
-            REQ  : begin
-                if (i_ram_ready)
-                    state <= IDLE;
-                else
-                    state <= WAIT;
-                end
-            WAIT : begin
-                if (i_ram_ready)
-                    state <= IDLE;
-                else
-                    state <= WAIT;
-                end
-            default : state <= IDLE;
-        endcase
+        cur_state <= nxt_state;
     end
 end
 
+always @(*) begin
+    case (cur_state)
+        IDLE : begin
+            if (mem_req)
+                nxt_state = REQ;
+            else
+                nxt_state = IDLE;
+        end
+        REQ  : begin
+            if (lsu_ram_ready_i)
+                nxt_state = IDLE;
+            else
+                nxt_state = WAIT;
+        end
+        WAIT : begin
+            if (lsu_ram_ready_i)
+                nxt_state = IDLE;
+            else
+                nxt_state = WAIT;
+            end
+        default : nxt_state = IDLE;
+    endcase
+end
+
 //---------------------------store-----------------------------
-assign sb_wdata = {56'd0, i_mem_wdata[7:0]};
-
-assign sh_wdata = {48'b0, i_mem_wdata[15:0]};
-
-assign sw_wdata = {32'b0, i_mem_wdata[31:0]};
-
+assign sb_wdata = {56'd0, mem_wdata_i[7:0]};
+assign sh_wdata = {48'b0, mem_wdata_i[15:0]};
+assign sw_wdata = {32'b0, mem_wdata_i[31:0]};
 
 assign wdata = ({64{op_ls_sb}} & sb_wdata )
-
               |({64{op_ls_sh}} & sh_wdata )
-
               |({64{op_ls_sw}} & sw_wdata )
-
-              |({64{op_ls_sd}} & i_mem_wdata)
-                ;
+              |({64{op_ls_sd}} & mem_wdata_i)
+            ;
 
 assign size  = ({3{op_ls_sb | op_ls_lb | op_ls_lbu}} & b_size )
-
               |({3{op_ls_sh | op_ls_lh | op_ls_lhu}} & h_size )
-
               |({3{op_ls_sw | op_ls_lw | op_ls_lwu}} & w_size )
-
               |({3{op_ls_sd | op_ls_ld}}             & d_size)
             ;
 
 //------------------------load----------------------------------------
-assign lb_rdata  = {{56{i_ram_rdata[7]}}, i_ram_rdata[7:0]};
-assign lbu_rdata = { 56'b0,               i_ram_rdata[7:0]};
+assign lb_rdata  = {{56{lsu_ram_data_i[7]}}, lsu_ram_data_i[7:0]};
+assign lbu_rdata = { 56'b0,               lsu_ram_data_i[7:0]};
 
-assign lh_rdata  = {{48{i_ram_rdata[15]}},i_ram_rdata[15:0]};
-assign lhu_rdata = { 48'b0,               i_ram_rdata[15:0]};
+assign lh_rdata  = {{48{lsu_ram_data_i[15]}},lsu_ram_data_i[15:0]};
+assign lhu_rdata = { 48'b0,               lsu_ram_data_i[15:0]};
 
-assign lw_rdata  = {{32{i_ram_rdata[31]}},i_ram_rdata[31:0]};
-assign lwu_rdata = { 32'b0,               i_ram_rdata[31:0]};
+assign lw_rdata  = {{32{lsu_ram_data_i[31]}},lsu_ram_data_i[31:0]};
+assign lwu_rdata = { 32'b0,               lsu_ram_data_i[31:0]};
 
 assign rdata = ({64{op_ls_lb }} & lb_rdata )
-
             |  ({64{op_ls_lbu}} & lbu_rdata )
-
             |  ({64{op_ls_lh }} & lh_rdata )
-
             |  ({64{op_ls_lhu}} & lhu_rdata )
-
             |  ({64{op_ls_lw }} & lw_rdata )
-
             |  ({64{op_ls_lwu}} & lwu_rdata )
-
-            |  ({64{op_ls_ld }} & i_ram_rdata)
+            |  ({64{op_ls_ld }} & lsu_ram_data_i)
                   ;
 
-
 //---------------ram port-------------
-assign o_ram_addr  = i_mem_addr;
-
-assign o_ram_wen   = i_mem_write;
-
-assign o_ram_valid = (state == REQ);
-
-assign o_ram_wdata = wdata;
-
-assign o_ram_size  = size;
+assign lsu_ram_cen_o   = (nxt_state == REQ);
+assign lsu_ram_wen_o   = mem_write_i;
+assign lsu_ram_addr_o  = mem_addr_i;
+assign lsu_ram_wdata_o = wdata;
+assign lsu_ram_size_o  = size;
 
 //--------------cpu port------------
-assign o_rd_data   = i_rd_data;
-
-assign o_rd_addr   = i_rd_addr;
-
-assign o_rd_wen    = i_mem_read ?
-                     i_ram_ready : i_rd_wen;
-
-assign o_mem_read  = i_mem_read;
-
-assign o_mem_rdata = rdata;
+assign lsu_rd_wen_o    = mem_read_i ? lsu_ram_ready_i : rd_wen_i;
+assign lsu_rd_addr_o   = rd_addr_i;
+assign lsu_rd_data_o   = rd_data_i;
+assign lsu_mem_read_o  = mem_read_i;
+assign lsu_mem_rdata_o = rdata;
 
 //-----------pipeline hold---------
-assign o_hold = i_mem_cen & ~i_ram_ready;
+assign lsu_hold_o = (nxt_state == REQ || nxt_state == WAIT);
 
 endmodule

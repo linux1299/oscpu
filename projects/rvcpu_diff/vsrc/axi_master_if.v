@@ -1,56 +1,5 @@
 `include "defines.v"
 
-// Burst types
-`define AXI_BURST_TYPE_FIXED                                2'b00
-`define AXI_BURST_TYPE_INCR                                 2'b01
-`define AXI_BURST_TYPE_WRAP                                 2'b10
-
-// Access permissions
-`define AXI_PROT_UNPRIVILEGED_ACCESS                        3'b000
-`define AXI_PROT_PRIVILEGED_ACCESS                          3'b001
-`define AXI_PROT_SECURE_ACCESS                              3'b000
-`define AXI_PROT_NON_SECURE_ACCESS                          3'b010
-`define AXI_PROT_DATA_ACCESS                                3'b000
-`define AXI_PROT_INSTRUCTION_ACCESS                         3'b100
-
-// Memory types (AR)
-`define AXI_ARCACHE_DEVICE_NON_BUFFERABLE                   4'b0000
-`define AXI_ARCACHE_DEVICE_BUFFERABLE                       4'b0001
-`define AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE     4'b0010
-`define AXI_ARCACHE_NORMAL_NON_CACHEABLE_BUFFERABLE         4'b0011
-`define AXI_ARCACHE_WRITE_THROUGH_NO_ALLOCATE               4'b1010
-`define AXI_ARCACHE_WRITE_THROUGH_READ_ALLOCATE             4'b1110
-`define AXI_ARCACHE_WRITE_THROUGH_WRITE_ALLOCATE            4'b1010
-`define AXI_ARCACHE_WRITE_THROUGH_READ_AND_WRITE_ALLOCATE   4'b1110
-`define AXI_ARCACHE_WRITE_BACK_NO_ALLOCATE                  4'b1011
-`define AXI_ARCACHE_WRITE_BACK_READ_ALLOCATE                4'b1111
-`define AXI_ARCACHE_WRITE_BACK_WRITE_ALLOCATE               4'b1011
-`define AXI_ARCACHE_WRITE_BACK_READ_AND_WRITE_ALLOCATE      4'b1111
-
-// Memory types (AW)
-`define AXI_AWCACHE_DEVICE_NON_BUFFERABLE                   4'b0000
-`define AXI_AWCACHE_DEVICE_BUFFERABLE                       4'b0001
-`define AXI_AWCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE     4'b0010
-`define AXI_AWCACHE_NORMAL_NON_CACHEABLE_BUFFERABLE         4'b0011
-`define AXI_AWCACHE_WRITE_THROUGH_NO_ALLOCATE               4'b0110
-`define AXI_AWCACHE_WRITE_THROUGH_READ_ALLOCATE             4'b0110
-`define AXI_AWCACHE_WRITE_THROUGH_WRITE_ALLOCATE            4'b1110
-`define AXI_AWCACHE_WRITE_THROUGH_READ_AND_WRITE_ALLOCATE   4'b1110
-`define AXI_AWCACHE_WRITE_BACK_NO_ALLOCATE                  4'b0111
-`define AXI_AWCACHE_WRITE_BACK_READ_ALLOCATE                4'b0111
-`define AXI_AWCACHE_WRITE_BACK_WRITE_ALLOCATE               4'b1111
-`define AXI_AWCACHE_WRITE_BACK_READ_AND_WRITE_ALLOCATE      4'b1111
-
-`define AXI_SIZE_BYTES_1                                    3'b000
-`define AXI_SIZE_BYTES_2                                    3'b001
-`define AXI_SIZE_BYTES_4                                    3'b010
-`define AXI_SIZE_BYTES_8                                    3'b011
-`define AXI_SIZE_BYTES_16                                   3'b100
-`define AXI_SIZE_BYTES_32                                   3'b101
-`define AXI_SIZE_BYTES_64                                   3'b110
-`define AXI_SIZE_BYTES_128                                  3'b111
-
-
 module axi_master_if # (
     parameter RW_DATA_WIDTH     = 64,
     parameter RW_ADDR_WIDTH     = 64,
@@ -64,13 +13,13 @@ module axi_master_if # (
 
     // user port
     input                               rw_id_i,
-    input                               rw_valid_i,
-    output                              rw_ready_o,
-    input                               rw_req_i,
-    output reg [RW_DATA_WIDTH-1:0]      rw_rdata_o,
-    input  [RW_DATA_WIDTH-1:0]          rw_wdata_i,
+    input                               rw_cen_i,
+    input                               rw_wen_i,
     input  [RW_ADDR_WIDTH-1:0]          rw_addr_i,
     input  [2:0]                        rw_size_i,
+    input  [RW_DATA_WIDTH-1:0]          rw_wdata_i,
+    output                              rw_ready_o,
+    output reg [RW_DATA_WIDTH-1:0]      rw_rdata_o,
     output [1:0]                        rw_resp_o,
 
     //------------AXI port-------------------------
@@ -129,10 +78,10 @@ module axi_master_if # (
     input  [AXI_USER_WIDTH-1:0]         axi_r_user_i
 );
 
-    wire w_trans    = rw_req_i;
-    wire r_trans    = ~rw_req_i;
-    wire w_valid    = rw_valid_i & w_trans;
-    wire r_valid    = rw_valid_i & r_trans;
+    wire w_trans    = rw_wen_i;
+    wire r_trans    = ~rw_wen_i;
+    wire w_valid    = rw_cen_i & w_trans;
+    wire r_valid    = rw_cen_i & r_trans;
 
     // handshake
     wire aw_hs      = axi_aw_ready_i & axi_aw_valid_o;
@@ -185,7 +134,6 @@ module axi_master_if # (
                     W_STATE_WRITE: if (w_done)  w_state <= W_STATE_RESP;
                     W_STATE_RESP:  if (b_hs)    w_state <= W_STATE_DONE;
                     W_STATE_DONE:               w_state <= W_STATE_IDLE;
-                    default     :               w_state <= w_state;
                 endcase
             end
         end
@@ -203,7 +151,7 @@ module axi_master_if # (
                     R_STATE_ADDR: if (ar_hs)    r_state <= R_STATE_READ;
                     R_STATE_READ: if (r_done)   r_state <= R_STATE_DONE;
                     R_STATE_DONE:               r_state <= R_STATE_IDLE;
-                    default:                    r_state <= r_state;
+                    default:;
                 endcase
             end
         end
@@ -306,15 +254,9 @@ module axi_master_if # (
     // ------------------Write Transaction------------------
     // Write address channel signals
     assign axi_aw_id_o      = axi_id;
-    
-    // assign axi_aw_addr_o    = axi_addr;
-    assign axi_aw_addr_o    = {axi_addr[63:3], 3'b0};
-
+    assign axi_aw_addr_o    = axi_addr;
     assign axi_aw_len_o     = axi_len;
-
-    // assign axi_aw_size_o    = axi_size;
-    assign axi_aw_size_o    = 3'b011;
-
+    assign axi_aw_size_o    = axi_size;
     assign axi_aw_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_aw_lock_o    = 1'b0;
     assign axi_aw_cache_o   = `AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE;
@@ -360,16 +302,12 @@ module axi_master_if # (
 
     // Read address channel signals
     assign axi_ar_valid_o   = r_state_addr;
-
-    // assign axi_ar_addr_o    = axi_addr;
-    assign axi_ar_addr_o    = {axi_addr[63:3], 3'b0};
+    assign axi_ar_addr_o    = axi_addr;
     assign axi_ar_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS;
     assign axi_ar_id_o      = axi_id;
     assign axi_ar_user_o    = axi_user;
     assign axi_ar_len_o     = axi_len;
-    // assign axi_ar_size_o    = axi_size;
-    assign axi_ar_size_o    = 3'b011;
-
+    assign axi_ar_size_o    = axi_size;
     assign axi_ar_burst_o   = `AXI_BURST_TYPE_INCR;
     assign axi_ar_lock_o    = 1'b0;
     assign axi_ar_cache_o   = `AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE;

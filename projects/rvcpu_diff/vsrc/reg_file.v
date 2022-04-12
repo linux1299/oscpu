@@ -9,20 +9,17 @@ module reg_file(
     input   rst_n,
 
     // write port
-    input        i_wen,
-    input [4:0]  i_addr,
-    input [63:0] i_wdata,
+    input        wen_i,
+    input [4:0]  addr_i,
+    input [63:0] wdata_i,
 
     // read port
-    input     [4:0]  i_rs1_addr,
-    input     [4:0]  i_rs2_addr,
-    input            i_rs1_cen,
-    input            i_rs2_cen,
-    output reg[63:0] o_rs1_rdata,
-    output reg[63:0] o_rs2_rdata,
-
-    // difftest
-    output    [63:0] regs_o[0:31]
+    input            rs1_cen_i,
+    input            rs2_cen_i,
+    input     [4:0]  rs1_addr_i,
+    input     [4:0]  rs2_addr_i,
+    output reg[63:0] rs1_rdata_o,
+    output reg[63:0] rs2_rdata_o
 );
 
 reg [63:0] regs [0:31];
@@ -35,49 +32,41 @@ always @(posedge clk) begin
             regs[i] <= 64'b0;
         end
     end
-    else if(i_wen & (i_addr != 5'd0)) begin
-        regs[i_addr] <= i_wdata;
+    else if(wen_i & (addr_i != 5'd0)) begin
+        regs[addr_i] <= wdata_i;
     end
 end
 
 //----------Read reg_file to rs1----------------
 always @(*) begin
-    if(i_rs1_addr == 5'b0) begin
-        o_rs1_rdata = 64'b0;
+    if(rs1_addr_i == 5'b0) begin
+        rs1_rdata_o = 64'b0;
     end
-    else if(i_wen & (i_addr == i_rs1_addr) & i_rs1_cen) begin
-        o_rs1_rdata = i_wdata;
+    else if(wen_i & (addr_i == rs1_addr_i) & rs1_cen_i) begin
+        rs1_rdata_o = wdata_i;
     end
-    else if(i_rs1_cen) begin
-        o_rs1_rdata = regs[i_rs1_addr];
+    else if(rs1_cen_i) begin
+        rs1_rdata_o = regs[rs1_addr_i];
     end
     else begin
-        o_rs1_rdata = 64'b0;
+        rs1_rdata_o = 64'b0;
     end
 end
 
 //----------Read reg_file to rs2----------------
 always @(*) begin
-    if(i_rs2_addr == 5'b0) begin
-        o_rs2_rdata = 64'b0;
+    if(rs2_addr_i == 5'b0) begin
+        rs2_rdata_o = 64'b0;
     end
-    else if(i_wen & (i_addr == i_rs2_addr) & i_rs2_cen) begin
-        o_rs2_rdata = i_wdata;
+    else if(wen_i & (addr_i == rs2_addr_i) & rs2_cen_i) begin
+        rs2_rdata_o = wdata_i;
     end
-    else if(i_rs2_cen) begin
-        o_rs2_rdata = regs[i_rs2_addr];
+    else if(rs2_cen_i) begin
+        rs2_rdata_o = regs[rs2_addr_i];
     end
     else begin
-        o_rs2_rdata = 64'b0;
+        rs2_rdata_o = 64'b0;
     end
 end
-
-//------------difftest--------------
-genvar j;
-generate
-	for (j = 0; j < 32; j = j + 1) begin
-		assign regs_o[j] = (i_wen & i_addr == j & j != 0) ? i_wdata : regs[j];
-	end
-endgenerate
 
 endmodule

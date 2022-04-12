@@ -9,29 +9,29 @@ module clint (
     input             rst_n,
 
     // timer port
-    input             i_timer_int,
+    input             timer_int_i,
 
     // idu port
-    input      [2:0]  i_expt_info,
-    input      [63:0] i_instr_addr,
-    input             i_branch_jump,
-    input      [63:0] i_jump_addr,
-    output reg [63:0] o_int_addr,
-    output reg        o_int_valid,
-    output            o_hold,
+    input      [63:0] pc_i,
+    input             jump_i,
+    input      [63:0] jump_pc_i,
+    input      [2:0]  expt_info_i,
+    output reg [63:0] clint_int_addr_o,
+    output reg        clint_int_valid_o,
+    output            clint_hold_o,
 
     // csr port
-    input             i_global_int_en,
-    input             i_mtime_int_en,
-    input             i_mtime_int_pend,
+    input             global_int_en_i,
+    input             mtime_int_en_i,
+    input             mtime_int_pend_i,
 
-    input      [63:0] i_csr_mtvec,
-    input      [63:0] i_csr_mepc,
-    input      [63:0] i_csr_mstatus,
+    input      [63:0] csr_mtvec_i,
+    input      [63:0] csr_mepc_i,
+    input      [63:0] csr_mstatus_i,
 
-    output reg        o_csr_wen,
-    output reg [11:0] o_csr_waddr,
-    output reg [63:0] o_csr_wdata
+    output reg        clint_csr_wen_o,
+    output reg [11:0] clint_csr_waddr_o,
+    output reg [63:0] clint_csr_wdata_o
 
 );
 
@@ -53,9 +53,9 @@ reg  [2:0]  csr_state;
 reg  [63:0] mepc_wdata;
 reg  [63:0] mcause_wdata;
 
-wire op_ecall   = i_expt_info[2];
-wire op_ebreak  = i_expt_info[1];
-wire op_mret    = i_expt_info[0];
+wire op_ecall   = expt_info_i[2];
+wire op_ebreak  = expt_info_i[1];
+wire op_mret    = expt_info_i[0];
 
 
 
@@ -64,9 +64,9 @@ always @(*) begin
     if(op_ecall || op_ebreak) begin
         int_state = INT_EXPT; // envirionment call or break
     end
-    else if (i_global_int_en &
-            ((i_timer_int & i_mtime_int_en) |
-             (i_timer_int & i_mtime_int_pend)) ) begin
+    else if (global_int_en_i &
+            ((timer_int_i & mtime_int_en_i) |
+             (timer_int_i & mtime_int_pend_i)) ) begin
 
         int_state = INT_TIME; // timer interrupt
     end
@@ -122,10 +122,10 @@ always @(posedge clk) begin
     end
     else if (csr_state == CSR_IDLE) begin
 
-        if (i_branch_jump & (int_state == INT_TIME))
-            mepc_wdata <= i_jump_addr;
+        if (jump_i & (int_state == INT_TIME))
+            mepc_wdata <= jump_pc_i;
         else
-            mepc_wdata <= i_instr_addr;
+            mepc_wdata <= pc_i;
     end
 end
 
@@ -157,44 +157,44 @@ end
 
 always @(posedge clk) begin
     if(~rst_n) begin
-        o_csr_wen   <= 0;
-        o_csr_waddr <= 0;
-        o_csr_wdata <= 0;
+        clint_csr_wen_o   <= 0;
+        clint_csr_waddr_o <= 0;
+        clint_csr_wdata_o <= 0;
     end
     else begin
         case (csr_state)
             CSR_MEPC : begin
-                o_csr_wen   <= 1'b1;
-                o_csr_waddr <= `ADDR_MEPC;
-                o_csr_wdata <= mepc_wdata;
+                clint_csr_wen_o   <= 1'b1;
+                clint_csr_waddr_o <= `ADDR_MEPC;
+                clint_csr_wdata_o <= mepc_wdata;
             end
 
             CSR_MCAUSE : begin
-                o_csr_wen   <= 1'b1;
-                o_csr_waddr <= `ADDR_MCAUSE;
-                o_csr_wdata <= mcause_wdata;
+                clint_csr_wen_o   <= 1'b1;
+                clint_csr_waddr_o <= `ADDR_MCAUSE;
+                clint_csr_wdata_o <= mcause_wdata;
             end
 
             CSR_MSTATUS : begin
-                o_csr_wen   <= 1'b1;
-                o_csr_waddr <= `ADDR_MSTATUS;
-                o_csr_wdata <= {i_csr_mstatus[63:4],
+                clint_csr_wen_o   <= 1'b1;
+                clint_csr_waddr_o <= `ADDR_MSTATUS;
+                clint_csr_wdata_o <= {csr_mstatus_i[63:4],
                                 1'b0, // close global int
-                                i_csr_mstatus[2:0]};
+                                csr_mstatus_i[2:0]};
             end
 
             CSR_MRET : begin
-                o_csr_wen   <= 1'b1;
-                o_csr_waddr <= `ADDR_MSTATUS;
-                o_csr_wdata <= {i_csr_mstatus[63:4],
-                                i_csr_mstatus[7], // MIE=MPIE
-                                i_csr_mstatus[2:0]};
+                clint_csr_wen_o   <= 1'b1;
+                clint_csr_waddr_o <= `ADDR_MSTATUS;
+                clint_csr_wdata_o <= {csr_mstatus_i[63:4],
+                                csr_mstatus_i[7], // MIE=MPIE
+                                csr_mstatus_i[2:0]};
             end
 
             default : begin
-                o_csr_wen   <= 0;
-                o_csr_waddr <= 0;
-                o_csr_wdata <= 0;
+                clint_csr_wen_o   <= 0;
+                clint_csr_waddr_o <= 0;
+                clint_csr_wdata_o <= 0;
             end
         endcase
     end
@@ -202,29 +202,29 @@ end
 
 always @(posedge clk) begin
     if(~rst_n) begin
-        o_int_addr  <= 0;
-        o_int_valid <= 0;
+        clint_int_addr_o  <= 0;
+        clint_int_valid_o <= 0;
     end
     else begin
         case (csr_state)
             CSR_MCAUSE : begin
-                o_int_addr  <= i_csr_mtvec;
-                o_int_valid <= 1'b1;
+                clint_int_addr_o  <= csr_mtvec_i;
+                clint_int_valid_o <= 1'b1;
             end
 
             CSR_MRET : begin
-                o_int_addr  <= i_csr_mepc;
-                o_int_valid <= 1'b1;
+                clint_int_addr_o  <= csr_mepc_i;
+                clint_int_valid_o <= 1'b1;
             end
             default : begin
-                o_int_addr  <= 0;
-                o_int_valid <= 0;
+                clint_int_addr_o  <= 0;
+                clint_int_valid_o <= 0;
             end
         endcase
     end
 end
 
-assign o_hold =  (int_state != INT_IDLE)
+assign clint_hold_o =  (int_state != INT_IDLE)
                | (csr_state != CSR_IDLE);
 
 endmodule
