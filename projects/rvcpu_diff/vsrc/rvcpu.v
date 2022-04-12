@@ -386,7 +386,7 @@ pipeline_reg#(
     .clk     ( clk     ),
     .rst_n   ( rst_n   ),
     .clear_i ( 1'b0 ),
-    .hold_i  ( lsu_hold_o ),
+    .hold_i  ( 1'b0 ),
     .data_i  ( {exu_rd_wen_o,
                 exu_rd_data_o,
                 exu_rd_addr_o,
