@@ -99,7 +99,7 @@ always @(*) begin
             else if (| ifu_instr_valid_reg[1:0])
                 nxt_state = LS_TIME;
 
-            else if (ifu_cen_i)
+            else if (ifu_cen_reg)
                 nxt_state = IF_REQ;
 
             else
@@ -138,11 +138,11 @@ always @(posedge clk) begin
     if (~rst_n) begin
         ifu_cen_reg <= 1'b0;
     end
-    else if (ifu_cen_i) begin
-        ifu_cen_reg <= 1'b1;
-    end
     else if (nxt_state==IF_REQ) begin
         ifu_cen_reg <= 1'b0;
+    end
+    else if (ifu_cen_i) begin
+        ifu_cen_reg <= 1'b1;
     end
 end
 
