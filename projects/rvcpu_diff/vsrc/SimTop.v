@@ -42,16 +42,16 @@ rvcpu u_rvcpu(
 );
 
 // ----------------- ram ------------------
-// RAMHelper RAMHelper(
-//     .clk   ( clock   ),
-//     .en    ( ram_rw_cen_o    ),
-//     .rIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
-//     .rdata ( ram_data_o ),
-//     .wIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
-//     .wdata ( ram_rw_wdata_o ),
-//     .wmask ( ram_wmask ),
-//     .wen   ( ram_rw_wen_o   )
-// );
+RAMHelper RAMHelper(
+    .clk   ( clock   ),
+    .en    ( ram_rw_cen_o    ),
+    .rIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
+    .rdata ( ram_data_o ),
+    .wIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
+    .wdata ( ram_rw_wdata_o ),
+    .wmask ( ram_wmask ),
+    .wen   ( ram_rw_wen_o   )
+);
 
 always @(posedge clock) begin
 
