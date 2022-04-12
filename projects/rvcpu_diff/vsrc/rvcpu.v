@@ -224,8 +224,8 @@ reg_file u_reg_file(
 
 //-------idu----------
 idu u_idu(
-    .pc_i               ( if_id_instr ),
-    .instr_i            ( if_id_pc ),
+    .pc_i               ( if_id_pc),
+    .instr_i            ( if_id_instr ),
     .instr_valid_i      ( if_id_valid ),
     .idu_jump_o         ( idu_jump_o         ),
     .idu_jump_pc_o      ( idu_jump_pc_o      ),
