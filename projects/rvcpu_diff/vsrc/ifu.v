@@ -74,7 +74,10 @@ always @(posedge clk) begin
     if(~rst_n) begin
         ifu_ram_cen_o <= 1'b0;
     end
-    else if (nxt_state==REQ && ~jump_i && ~int_cen_i) begin
+    else if (cur_state==REQ && nxt_state==REQ) begin
+        ifu_ram_cen_o <= 1'b0;
+    end
+    else if (nxt_state==REQ) begin
         ifu_ram_cen_o <= 1'b1;
     end
     else begin
