@@ -40,6 +40,7 @@ always @(posedge clk) begin
         valid_o <= 1'b1;
     end
     else begin
+        data_o  <= {N{1'b0}};
         valid_o <= 1'b0;
     end
 end
