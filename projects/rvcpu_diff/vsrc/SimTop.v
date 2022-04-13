@@ -53,8 +53,8 @@ wire [63:0] ram_wmask ={{8{ram_rw_wmask_o[7]}},
                         {8{ram_rw_wmask_o[0]}}};
 reg  [63:0] ram_data_o;
 
-wire [63:0] ram_addr = (ram_rw_addr_o-`PC_START)>>3;
-
+wire [63:0] ram_addr_tmp = (ram_rw_addr_o-`PC_START)>>3;
+wire [31:0] ram_addr = ram_addr_tmp[31:0];
 RAMHelper RAMHelper(
     .clk   ( clock   ),
     .en    ( ram_rw_cen_o    ),
