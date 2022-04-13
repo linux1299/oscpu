@@ -103,17 +103,19 @@ always @(posedge clk) begin
             default : mstatus <= mstatus;
         endcase
     end
-    else if (clint_mepc_wen_i) begin
+    else begin
+        if (clint_mepc_wen_i) begin
 
-        mepc <= clint_mepc_wdata_i;
-    end
-    else if (clint_mcause_wen_i) begin
+            mepc <= clint_mepc_wdata_i;
+        end
+        if (clint_mcause_wen_i) begin
 
-        mcause <= clint_mcause_wdata_i;
-    end
-    else if (clint_mstatus_wen_i) begin
+            mcause <= clint_mcause_wdata_i;
+        end
+        if (clint_mstatus_wen_i) begin
 
-        mstatus <= clint_mstatus_wdata_i;
+            mstatus <= clint_mstatus_wdata_i;
+        end
     end
 end
 
