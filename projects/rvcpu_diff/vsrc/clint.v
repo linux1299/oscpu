@@ -64,9 +64,9 @@ always @(*) begin
     if(op_ecall || op_ebreak) begin
         int_state = INT_EXPT; // envirionment call or break
     end
-    else if (global_int_en_i &
-            ((timer_int_i & mtime_int_en_i) |
-             (timer_int_i & mtime_int_pend_i)) ) begin
+    else if (global_int_en_i &&
+                ((timer_int_i && mtime_int_en_i) ||
+                 (timer_int_i && mtime_int_pend_i)) ) begin
 
         int_state = INT_TIME; // timer interrupt
     end

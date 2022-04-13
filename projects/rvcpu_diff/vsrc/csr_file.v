@@ -59,8 +59,8 @@ always @(posedge clk) begin
     if(~rst_n) begin
         mip <= 0;
     end
-    else begin
-        mip <= timer_int_i;
+    else if (timer_int_i) begin
+        mip[7] <= 1'b1;
     end
 end
 
