@@ -22,11 +22,11 @@ wire ram_rw_wen_o  ;
 wire [63:0] ram_rw_addr_o ;
 wire [63:0] ram_rw_wdata_o;
 wire [2:0]  ram_rw_size_o ;
-wire [63:0]  ram_wmask = 64'hfff;
+wire [7:0]  ram_rw_wmask_o;
 
-reg  [63:0] ram_rw_data_i;
-reg         ram_rw_ready_i;
-reg  [63:0] ram_data_o;
+
+
+
 
 // ------------- cpu core -----------------
 rvcpu u_rvcpu(
@@ -36,12 +36,22 @@ rvcpu u_rvcpu(
     .ram_rw_wen_o   ( ram_rw_wen_o   ),
     .ram_rw_addr_o  ( ram_rw_addr_o  ),
     .ram_rw_wdata_o ( ram_rw_wdata_o ),
+    .ram_rw_wmask_o ( ram_rw_wmask_o ),
     .ram_rw_size_o  ( ram_rw_size_o  ),
     .ram_rw_ready_i ( ram_rw_ready_i ),
     .ram_rw_data_i  ( ram_rw_data_i  )
 );
 
 // ----------------- ram ------------------
+wire [63:0] ram_wmask ={{8{ram_rw_wmask_o[7]}}, 
+                        {8{ram_rw_wmask_o[6]}}, 
+                        {8{ram_rw_wmask_o[5]}}, 
+                        {8{ram_rw_wmask_o[4]}}, 
+                        {8{ram_rw_wmask_o[3]}}, 
+                        {8{ram_rw_wmask_o[2]}}, 
+                        {8{ram_rw_wmask_o[1]}}, 
+                        {8{ram_rw_wmask_o[0]}}};
+reg  [63:0] ram_data_o;
 RAMHelper RAMHelper(
     .clk   ( clock   ),
     .en    ( ram_rw_cen_o    ),
@@ -53,6 +63,8 @@ RAMHelper RAMHelper(
     .wen   ( ram_rw_wen_o   )
 );
 
+reg  [63:0] ram_rw_data_i;
+reg         ram_rw_ready_i;
 always @(posedge clock) begin
 
     if (ram_rw_cen_o) begin

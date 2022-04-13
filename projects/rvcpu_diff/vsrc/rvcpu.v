@@ -14,6 +14,7 @@ module rvcpu (
     output    [63:0] ram_rw_addr_o,
     output    [63:0] ram_rw_wdata_o,
     output    [2:0]  ram_rw_size_o,
+    output    [7:0]  ram_rw_wmask_o,
     input            ram_rw_ready_i,
     input     [63:0] ram_rw_data_i
 );
@@ -519,6 +520,7 @@ ram_arbiter u_ram_arbiter(
     .ram_rw_wen_o      ( ram_rw_wen_o      ),
     .ram_rw_addr_o     ( ram_rw_addr_o     ),
     .ram_rw_wdata_o    ( ram_rw_wdata_o    ),
+    .ram_rw_wmask_o    ( ram_rw_wmask_o    ),
     .ram_rw_size_o     ( ram_rw_size_o     ),
     .ram_rw_ready_i    ( ram_rw_ready_i ),
     .ram_rw_data_i     ( ram_rw_data_i )
