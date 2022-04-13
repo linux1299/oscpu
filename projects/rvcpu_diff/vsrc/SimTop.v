@@ -167,6 +167,16 @@ always @(posedge clock) begin
   end
 end
 
+reg skip;
+always @(posedge clock) begin
+  if (reset)
+    skip <= 0;
+  else if (ls_wb_inst==32'h7b)
+    skip <= 1;
+  else
+    skip <= 0; 
+end
+
 DifftestInstrCommit DifftestInstrCommit(
   .clock              (clock),
   .coreid             (0),
@@ -174,7 +184,7 @@ DifftestInstrCommit DifftestInstrCommit(
   .valid              (cmt_valid),
   .pc                 (cmt_pc),
   .instr              (cmt_inst),
-  .skip               (0),
+  .skip               (skip),
   .isRVC              (0),
   .scFailed           (0),
   .wen                (cmt_wen),
