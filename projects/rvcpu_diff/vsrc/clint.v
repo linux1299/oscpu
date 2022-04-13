@@ -29,9 +29,14 @@ module clint (
     input      [63:0] csr_mepc_i,
     input      [63:0] csr_mstatus_i,
 
-    output reg        clint_csr_wen_o,
-    output reg [11:0] clint_csr_waddr_o,
-    output reg [63:0] clint_csr_wdata_o
+    output reg        clint_mepc_wen_o,
+    output reg [63:0] clint_mepc_wdata_o,
+
+    output reg        clint_mcause_wen_o,
+    output reg [63:0] clint_mcause_wdata_o,
+
+    output reg        clint_mstatus_wen_o,
+    output reg [63:0] clint_mstatus_wdata_o
 
 );
 
@@ -43,10 +48,8 @@ localparam INT_MRET = 3;
 
 //-------Write CSR state-----------
 localparam CSR_IDLE    = 0;
-localparam CSR_MSTATUS = 1;
-localparam CSR_MEPC    = 2;
-localparam CSR_MRET    = 3;
-localparam CSR_MCAUSE  = 4;
+localparam CSR_MEPC_MCAUSE_MSTATUS = 1;
+localparam CSR_MRET    = 2;
 
 reg  [1:0]  int_state;
 reg  [2:0]  csr_state;
@@ -85,25 +88,18 @@ always @(posedge clk) begin
     end
     else begin
         case (csr_state)
-
             CSR_IDLE : begin
                 if (int_state == INT_EXPT)
-                    csr_state <= CSR_MEPC;
+                    csr_state <= CSR_MEPC_MCAUSE_MSTATUS;
 
                 else if (int_state == INT_TIME)
-                    csr_state <= CSR_MEPC;
+                    csr_state <= CSR_MEPC_MCAUSE_MSTATUS;
 
                 else if (int_state == INT_MRET)
                     csr_state <= CSR_MRET;
             end
 
-            CSR_MEPC :
-                    csr_state <= CSR_MSTATUS;
-
-            CSR_MSTATUS :
-                    csr_state <= CSR_MCAUSE;
-
-            CSR_MCAUSE :
+            CSR_MEPC_MCAUSE_MSTATUS :
                     csr_state <= CSR_IDLE;
 
             CSR_MRET :
@@ -157,44 +153,39 @@ end
 
 always @(posedge clk) begin
     if(~rst_n) begin
-        clint_csr_wen_o   <= 0;
-        clint_csr_waddr_o <= 0;
-        clint_csr_wdata_o <= 0;
+        clint_mepc_wen_o      <= 1'b0;
+        clint_mcause_wen_o    <= 1'b0;
+        clint_mstatus_wen_o   <= 1'b0;
+
+        clint_mepc_wdata_o    <= 64'b0;
+        clint_mcause_wdata_o  <= 64'b0;
+        clint_mstatus_wdata_o <= 64'b0;
     end
     else begin
         case (csr_state)
-            CSR_MEPC : begin
-                clint_csr_wen_o   <= 1'b1;
-                clint_csr_waddr_o <= `ADDR_MEPC;
-                clint_csr_wdata_o <= mepc_wdata;
-            end
+            CSR_MEPC_MCAUSE_MSTATUS : begin
+                clint_mepc_wen_o      <= 1'b1;
+                clint_mcause_wen_o    <= 1'b1;
+                clint_mstatus_wen_o   <= 1'b1;
 
-            CSR_MCAUSE : begin
-                clint_csr_wen_o   <= 1'b1;
-                clint_csr_waddr_o <= `ADDR_MCAUSE;
-                clint_csr_wdata_o <= mcause_wdata;
-            end
-
-            CSR_MSTATUS : begin
-                clint_csr_wen_o   <= 1'b1;
-                clint_csr_waddr_o <= `ADDR_MSTATUS;
-                clint_csr_wdata_o <= {csr_mstatus_i[63:4],
-                                1'b0, // close global int
-                                csr_mstatus_i[2:0]};
+                clint_mepc_wdata_o    <= mepc_wdata;
+                clint_mcause_wdata_o  <= mcause_wdata;
+                clint_mstatus_wdata_o <= {csr_mstatus_i[63:4],
+                                          1'b0, // close global int
+                                          csr_mstatus_i[2:0]};
             end
 
             CSR_MRET : begin
-                clint_csr_wen_o   <= 1'b1;
-                clint_csr_waddr_o <= `ADDR_MSTATUS;
-                clint_csr_wdata_o <= {csr_mstatus_i[63:4],
-                                csr_mstatus_i[7], // MIE=MPIE
-                                csr_mstatus_i[2:0]};
+                clint_mstatus_wen_o   <= 1'b1;
+                clint_mstatus_wdata_o <= {csr_mstatus_i[63:4],
+                                          csr_mstatus_i[7], // MIE=MPIE
+                                          csr_mstatus_i[2:0]};
             end
 
             default : begin
-                clint_csr_wen_o   <= 0;
-                clint_csr_waddr_o <= 0;
-                clint_csr_wdata_o <= 0;
+                clint_mepc_wen_o      <= 1'b0;
+                clint_mcause_wen_o    <= 1'b0;
+                clint_mstatus_wen_o   <= 1'b0;
             end
         endcase
     end
@@ -207,7 +198,7 @@ always @(posedge clk) begin
     end
     else begin
         case (csr_state)
-            CSR_MCAUSE : begin
+            CSR_MEPC_MCAUSE_MSTATUS : begin
                 clint_int_addr_o  <= csr_mtvec_i;
                 clint_int_valid_o <= 1'b1;
             end

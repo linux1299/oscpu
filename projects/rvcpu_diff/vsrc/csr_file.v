@@ -16,9 +16,12 @@ module csr_file (
     output reg [63:0] csrfile_cpu_csr_rdata_o,
 
     // clint port
-    input             clint_csr_wen_i,
-    input      [11:0] clint_csr_waddr_i,
-    input      [63:0] clint_csr_wdata_i,
+    input             clint_mepc_wen_i     ,
+    input [63:0]      clint_mepc_wdata_i   ,
+    input             clint_mcause_wen_i   ,
+    input [63:0]      clint_mcause_wdata_i ,
+    input             clint_mstatus_wen_i  ,
+    input [63:0]      clint_mstatus_wdata_i,
 
     output     [63:0] csrfile_clint_csr_mtvec_o,
     output     [63:0] csrfile_clint_csr_mepc_o,
@@ -67,6 +70,7 @@ end
 //----------Write CSR-----------------------
 always @(posedge clk) begin
     if(~rst_n) begin
+
         // mstatus: MPP[12:11]=11, MPIE[7]=1, MIE[3]=1
         mstatus <= {51'b0, 13'b11000_1000_1000};
 
@@ -81,6 +85,7 @@ always @(posedge clk) begin
     end
     else if (cpu_csr_wen_i) begin
         case (cpu_csr_waddr_i)
+
             `ADDR_MSTATUS : mstatus <= cpu_csr_wdata_i;
 
             `ADDR_MIE     : mie     <= cpu_csr_wdata_i;
@@ -94,28 +99,21 @@ always @(posedge clk) begin
             `ADDR_MTVAL   : mtval   <= cpu_csr_wdata_i;
 
             `ADDR_MHARTID : mhartid <= cpu_csr_wdata_i;
-            
+
             default : mstatus <= mstatus;
         endcase
     end
-    else if (clint_csr_wen_i) begin
-        case (clint_csr_waddr_i)
-            `ADDR_MSTATUS : mstatus <= clint_csr_wdata_i;
+    else if (clint_mepc_wen_i) begin
 
-            `ADDR_MIE     : mie     <= clint_csr_wdata_i;
+        mepc <= clint_mepc_wdata_i;
+    end
+    else if (clint_mcause_wen_i) begin
 
-            `ADDR_MTVEC   : mtvec   <= clint_csr_wdata_i;
+        mcause <= clint_mcause_wdata_i;
+    end
+    else if (clint_mstatus_wen_i) begin
 
-            `ADDR_MEPC    : mepc    <= clint_csr_wdata_i;
-
-            `ADDR_MCAUSE  : mcause  <= clint_csr_wdata_i;
-
-            `ADDR_MTVAL   : mtval   <= clint_csr_wdata_i;
-
-            `ADDR_MHARTID : mhartid <= clint_csr_wdata_i;
-
-            default : mstatus <= mstatus;
-        endcase
+        mstatus <= clint_mstatus_wdata_i;
     end
 end
 

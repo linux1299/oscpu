@@ -79,9 +79,12 @@ wire  csrfile_mtime_int_pend_o;
 wire [63:0] clint_int_addr_o;
 wire  clint_int_valid_o;
 wire  clint_hold_o;
-wire  clint_csr_wen_o;
-wire [11:0] clint_csr_waddr_o;
-wire [63:0] clint_csr_wdata_o;
+wire clint_mepc_wen_o     ;
+wire [63:0] clint_mepc_wdata_o   ;
+wire clint_mcause_wen_o   ;
+wire [63:0] clint_mcause_wdata_o ;
+wire clint_mstatus_wen_o  ;
+wire [63:0] clint_mstatus_wdata_o;
 wire [210:0] ex_ls_data;
 
 wire  lsu_ram_cen_o;
@@ -337,9 +340,13 @@ csr_file u_csr_file(
     .cpu_csr_waddr_i             ( exu_csr_waddr_o ),
     .cpu_csr_wdata_i             ( exu_csr_wdata_o ),
     .csrfile_cpu_csr_rdata_o     ( csrfile_cpu_csr_rdata_o     ),
-    .clint_csr_wen_i             ( clint_csr_wen_o ),
-    .clint_csr_waddr_i           ( clint_csr_waddr_o ),
-    .clint_csr_wdata_i           ( clint_csr_wdata_o ),
+
+    .clint_mepc_wen_i            ( clint_mepc_wen_o     ),
+    .clint_mepc_wdata_i          ( clint_mepc_wdata_o   ),
+    .clint_mcause_wen_i          ( clint_mcause_wen_o   ),
+    .clint_mcause_wdata_i        ( clint_mcause_wdata_o ),
+    .clint_mstatus_wen_i         ( clint_mstatus_wen_o  ),
+    .clint_mstatus_wdata_i       ( clint_mstatus_wdata_o),
     .csrfile_clint_csr_mtvec_o   ( csrfile_clint_csr_mtvec_o   ),
     .csrfile_clint_csr_mepc_o    ( csrfile_clint_csr_mepc_o    ),
     .csrfile_clint_csr_mstatus_o ( csrfile_clint_csr_mstatus_o ),
@@ -367,9 +374,13 @@ clint u_clint(
     .csr_mtvec_i       ( csrfile_clint_csr_mtvec_o ),
     .csr_mepc_i        ( csrfile_clint_csr_mepc_o ),
     .csr_mstatus_i     ( csrfile_clint_csr_mstatus_o ),
-    .clint_csr_wen_o   ( clint_csr_wen_o   ),
-    .clint_csr_waddr_o ( clint_csr_waddr_o ),
-    .clint_csr_wdata_o  ( clint_csr_wdata_o  )
+
+    .clint_mepc_wen_o     ( clint_mepc_wen_o  ),
+    .clint_mepc_wdata_o   ( clint_mepc_wdata_o),
+    .clint_mcause_wen_o   ( clint_mcause_wen_o  ),
+    .clint_mcause_wdata_o ( clint_mcause_wdata_o),
+    .clint_mstatus_wen_o  ( clint_mstatus_wen_o  ),
+    .clint_mstatus_wdata_o( clint_mstatus_wdata_o)
 );
 
 pipeline_reg#(
