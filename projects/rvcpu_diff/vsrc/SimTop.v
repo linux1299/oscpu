@@ -261,7 +261,7 @@ DifftestCSRState DifftestCSRState(
   .stval              (0),
   .mtvec              (u_rvcpu.u_csr_file.mtvec),
   .stvec              (0),
-  .mcause             (0),
+  .mcause             (u_rvcpu.u_csr_file.mcause),
   .scause             (0),
   .satp               (0),
   .mip                (u_rvcpu.u_csr_file.mip),
