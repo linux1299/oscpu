@@ -26,7 +26,8 @@ reg  [63:0] mtimecmp;
 always @(posedge clk) begin
     if(~rst_n) begin
         mtime    <= 0;
-        mtimecmp <= 64'hffff_ffff_ffff_ffff;
+        mtimecmp <= 0;
+        // mtimecmp <= 64'hffff_ffff_ffff_ffff;
     end
     else if (wen_i & cen_i) begin
         case (addr_i)
