@@ -10,7 +10,6 @@ module idu(
     // ifu ports
     input [63:0]  pc_i,
     input [31:0]  instr_i,
-    input         instr_valid_i,
     output        idu_jump_o,
     output[63:0]  idu_jump_pc_o,
 
@@ -64,13 +63,13 @@ module idu(
 
 
 //----------Pre decode--------------
-wire [6:0]  opcode = {7{instr_valid_i}} & instr_i[6:0];
-wire [4:0]  rd     = {5{instr_valid_i}} & instr_i[11:7];
-wire [4:0]  rs1    = {5{instr_valid_i}} & instr_i[19:15];
-wire [4:0]  rs2    = {5{instr_valid_i}} & instr_i[24:20];
-wire [2:0]  func3  = {3{instr_valid_i}} & instr_i[14:12];
-wire [6:0]  func7  = {7{instr_valid_i}} & instr_i[31:25];
-wire [11:0] csr    = {12{instr_valid_i}}& instr_i[31:20];
+wire [6:0]  opcode = instr_i[6:0];
+wire [4:0]  rd     = instr_i[11:7];
+wire [4:0]  rs1    = instr_i[19:15];
+wire [4:0]  rs2    = instr_i[24:20];
+wire [2:0]  func3  = instr_i[14:12];
+wire [6:0]  func7  = instr_i[31:25];
+wire [11:0] csr    = instr_i[31:20];
 
 
 wire instr_op_is_imm   = (opcode == `INSTR_I);

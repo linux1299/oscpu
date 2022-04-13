@@ -28,7 +28,7 @@ wire [31:0] ifu_instr_o;
 wire [63:0] ifu_pc_o;
 wire  ifu_instr_valid_o;
 wire [95:0] if_id_data;
-wire  if_id_valid;
+
 wire [63:0] rs1_rdata_o;
 wire [63:0] rs2_rdata_o;
 wire  idu_jump_o ;
@@ -56,7 +56,7 @@ wire [63:0] idu_csr_rdata_o;
 wire [11:0] idu_csr_raddr_o;
 wire [11:0] idu_csr_waddr_o;
 wire [400:0] id_ex_data ;
-wire  id_ex_valid;
+
 wire  exu_rd_wen_o;
 wire [63:0] exu_rd_data_o;
 wire [4:0] exu_rd_addr_o;
@@ -82,7 +82,7 @@ wire  clint_csr_wen_o;
 wire [11:0] clint_csr_waddr_o;
 wire [63:0] clint_csr_wdata_o;
 wire [210:0] ex_ls_data;
-wire  ex_ls_valid;
+
 wire  lsu_ram_cen_o;
 wire  lsu_ram_wen_o;
 wire [63:0] lsu_ram_addr_o;
@@ -95,7 +95,7 @@ wire [63:0] lsu_mem_rdata_o;
 wire  lsu_mem_read_o;
 wire  lsu_hold_o;
 wire [134:0] ls_wb_data;
-wire  ls_wb_valid;
+
 wire  wbu_rd_wen_o;
 wire [4:0] wbu_rd_addr_o;
 wire [63:0] wbu_rd_wdata_o;
@@ -192,17 +192,11 @@ pipeline_reg#(
 )u_pipeline_reg_if_id(
     .clk     ( clk     ),
     .rst_n   ( rst_n   ),
-    .clear_i ( idu_jump_o
-            && ~o_ctrl_load_use ),
-    .hold_i  ( o_load_use
-            || o_ctrl_load_use
-            || lsu_hold_o
-            || clint_hold_o ),
+    .clear_i ( (idu_jump_o && ~o_ctrl_load_use) || ~ifu_instr_valid_o),
+    .hold_i  ( o_load_use || o_ctrl_load_use || lsu_hold_o || clint_hold_o ),
     .data_i  ( {ifu_instr_o,
                 ifu_pc_o} ),
-    .valid_i ( ifu_instr_valid_o ),
-    .data_o  ( if_id_data  ),
-    .valid_o ( if_id_valid  )
+    .data_o  ( if_id_data  )
 );
 
 
@@ -226,7 +220,6 @@ reg_file u_reg_file(
 idu u_idu(
     .pc_i               ( if_id_pc),
     .instr_i            ( if_id_instr ),
-    .instr_valid_i      ( if_id_valid ),
     .idu_jump_o         ( idu_jump_o         ),
     .idu_jump_pc_o      ( idu_jump_pc_o      ),
     .rs1_rdata_i        ( rs1_rdata_o ),
@@ -293,9 +286,7 @@ pipeline_reg#(
                 idu_csr_rdata_o,
                 idu_csr_raddr_o,
                 idu_csr_waddr_o} ),
-    .valid_i ( if_id_valid ),
-    .data_o  ( id_ex_data  ),
-    .valid_o ( id_ex_valid  )
+    .data_o  ( id_ex_data  )
 );
 
 //===============Stage 3======================
@@ -385,8 +376,8 @@ pipeline_reg#(
 )u_pipeline_reg_ex_ls(
     .clk     ( clk     ),
     .rst_n   ( rst_n   ),
-    .clear_i ( 1'b0 ),
-    .hold_i  ( 1'b0 ),
+    .clear_i ( ram_lsu_valid_o ),
+    .hold_i  ( lsu_hold_o ),
     .data_i  ( {exu_rd_wen_o,
                 exu_rd_data_o,
                 exu_rd_addr_o,
@@ -395,9 +386,7 @@ pipeline_reg#(
                 exu_ls_info_o,
                 exu_mem_read_o,
                 exu_mem_write_o} ),
-    .valid_i ( id_ex_valid ),
-    .data_o  ( ex_ls_data  ),
-    .valid_o ( ex_ls_valid  )
+    .data_o  ( ex_ls_data  )
 );
 
 //===================Stage 4=========================
@@ -440,9 +429,7 @@ pipeline_reg#(
                 lsu_rd_addr_o  ,
                 lsu_mem_rdata_o,
                 lsu_mem_read_o } ),
-    .valid_i ( ex_ls_valid ),
-    .data_o  ( ls_wb_data  ),
-    .valid_o ( ls_wb_valid  )
+    .data_o  ( ls_wb_data  )
 );
 
 //=====================Stage 5====================
