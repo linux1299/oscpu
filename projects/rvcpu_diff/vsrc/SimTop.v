@@ -109,13 +109,23 @@ generate
 	end
 endgenerate
 
+reg branch_ebreak_ecall_mret;
+
+always @(posedge clock) begin
+    if (reset)
+        branch_ebreak_ecall_mret <= 1'b0;
+    else
+        branch_ebreak_ecall_mret <= u_rvcpu.u_idu.instr_type_b 
+                                  | u_rvcpu.u_idu.instr_ebreak 
+                                  | u_rvcpu.u_idu.instr_ecall  
+                                  | u_rvcpu.u_idu.instr_mret
+                                  ;
+end
 
 always @(posedge clock) begin
     if (u_rvcpu.ram_lsu_valid_o)
         ls_wb_ready <= 1;
-    else if (u_rvcpu.u_idu.instr_type_b | u_rvcpu.u_idu.instr_ebreak | 
-             u_rvcpu.u_idu.instr_ecall  | u_rvcpu.u_idu.instr_mret
-            )
+    else if (branch_ebreak_ecall_mret)
         ls_wb_ready <= 1;
     else
         ls_wb_ready <= 0;
