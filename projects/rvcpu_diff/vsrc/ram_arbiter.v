@@ -318,7 +318,7 @@ always @(posedge clk) begin
                 ram_rw_addr_o  <= lsu_addr;
                 ram_rw_wdata_o <= lsu_wdata_l;
                 ram_rw_size_o  <= 3'b011;
-                ram_rw_wmask_o <= 0;
+                ram_rw_wmask_o <= lsu_wmask_l;
             end
 
             LS_REQ_1: begin
@@ -327,7 +327,7 @@ always @(posedge clk) begin
                 ram_rw_addr_o  <= lsu_addr_aligned + 4'd8;
                 ram_rw_wdata_o <= lsu_wdata_h;
                 ram_rw_size_o  <= 3'b011;
-                ram_rw_wmask_o <= lsu_wmask_l;
+                ram_rw_wmask_o <= lsu_wmask_h;
             end
 
             LS_WAIT, IF_WAIT  : begin
@@ -336,7 +336,7 @@ always @(posedge clk) begin
                 ram_rw_addr_o  <= ram_rw_addr_o ;
                 ram_rw_wdata_o <= ram_rw_wdata_o;
                 ram_rw_size_o  <= ram_rw_size_o ;
-                ram_rw_wmask_o <= lsu_wmask_h;
+                ram_rw_wmask_o <= ram_rw_wmask_o;
             end
 
             default : begin
