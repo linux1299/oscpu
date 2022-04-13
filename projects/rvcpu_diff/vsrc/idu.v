@@ -61,6 +61,12 @@ module idu(
 
 );
 
+// test out char
+always @(*) begin
+    if (instr_i==32'h7b)
+        $display("Output!\n");
+end
+
 
 //----------Pre decode--------------
 wire [6:0]  opcode = instr_i[6:0];
