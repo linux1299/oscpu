@@ -67,7 +67,8 @@ end
 //----------Write CSR-----------------------
 always @(posedge clk) begin
     if(~rst_n) begin
-        mstatus <= {51'b0, 13'b11_0001_0000000}; // MPP=11, MPIE=1
+        // MPP[12:11]=11, MPIE[7]=1, MIE[3]=1
+        mstatus <= {51'b0, 13'b11000_1000_0000};
         mie     <= 0;
         mtvec   <= 0;
         mepc    <= 0;
