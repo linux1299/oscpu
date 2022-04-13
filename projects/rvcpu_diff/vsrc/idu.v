@@ -62,10 +62,10 @@ module idu(
 );
 
 // test out char
-// always @(*) begin
-//     if (instr_i==32'h7b)
-//         $display("Output!\n");
-// end
+always @(*) begin
+    if (instr_i==32'h7b)
+        $display("Output!\n");
+end
 
 
 //----------Pre decode--------------
@@ -429,8 +429,8 @@ assign idu_csr_waddr_o  = csr;
 assign idu_csr_rdata_o  = csr_rdata_i;
 
 assign idu_csr_wen_o    = instr_csrrw
-                    | instr_csrrs
-                    | instr_csrrc;
+                        | instr_csrrs
+                        | instr_csrrc;
 
 
 endmodule
