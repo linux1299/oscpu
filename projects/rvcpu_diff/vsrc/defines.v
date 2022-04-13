@@ -110,7 +110,7 @@
 `define AXI_SIZE_BYTES_128                                  3'b111
 
 // PC
-`define PC_START        64'h80000_0000
+`define PC_START        64'h8000_0000
 
 
 // priv mode
