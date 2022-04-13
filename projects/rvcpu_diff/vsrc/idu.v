@@ -62,10 +62,10 @@ module idu(
 );
 
 // test out char
-always @(*) begin
-    if (instr_i==32'h7b)
-        $display("Output!\n");
-end
+// always @(*) begin
+//     if (instr_i==32'h7b)
+//         $display("Output!\n");
+// end
 
 
 //----------Pre decode--------------
