@@ -52,12 +52,15 @@ wire [63:0] ram_wmask ={{8{ram_rw_wmask_o[7]}},
                         {8{ram_rw_wmask_o[1]}}, 
                         {8{ram_rw_wmask_o[0]}}};
 reg  [63:0] ram_data_o;
+
+wire [63:0] ram_addr = (ram_rw_addr_o-`PC_START)>>3;
+
 RAMHelper RAMHelper(
     .clk   ( clock   ),
     .en    ( ram_rw_cen_o    ),
-    .rIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
+    .rIdx  ( ram_addr ),
     .rdata ( ram_data_o ),
-    .wIdx  ( (ram_rw_addr_o-`PC_START)>>3  ),
+    .wIdx  ( ram_addr ),
     .wdata ( ram_rw_wdata_o ),
     .wmask ( ram_wmask ),
     .wen   ( ram_rw_wen_o   )
