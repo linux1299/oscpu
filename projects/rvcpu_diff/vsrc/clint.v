@@ -180,8 +180,9 @@ always @(posedge clk) begin
                 clint_mstatus_wdata_o <= {
                                           csr_mstatus_i[63:8],
                                           4'b1000,          // MPIE[7]=1
+                                          4'b0000,          // MPIE[7]=0
                                           csr_mstatus_i[7], // MIE=MPIE[7]
-                                          csr_mstatus_i[2:0]};
+                                          3'b0};
             end
 
             default : begin
