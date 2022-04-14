@@ -278,7 +278,7 @@ DifftestCSRState DifftestCSRState(
   .satp               (0),
   .mip                (u_rvcpu.u_csr_file.mip),
   .mie                (u_rvcpu.u_csr_file.mie),
-  .mscratch           (0),
+  .mscratch           (u_rvcpu.u_csr_file.mscratch),
   .sscratch           (0),
   .mideleg            (0),
   .medeleg            (0)
