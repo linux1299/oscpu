@@ -265,7 +265,7 @@ DifftestCSRState DifftestCSRState(
   .clock              (clock),
   .coreid             (0),
   .priviledgeMode     (`RISCV_PRIV_MODE_M),
-  .mstatus            (mret_r1 ? 64'h88 : u_rvcpu.u_csr_file.mstatus),
+  .mstatus            (u_rvcpu.u_csr_file.mstatus),
   .sstatus            (0),
   .mepc               (u_rvcpu.u_csr_file.mepc),
   .sepc               (0),
