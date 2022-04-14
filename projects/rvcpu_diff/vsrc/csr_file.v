@@ -73,8 +73,8 @@ always @(posedge clk) begin
     if(~rst_n) begin
 
         // mstatus: MPP[12:11]=11, MPIE[7]=?, MIE[3]=?
-        // mstatus <= {51'b0, 13'b11000_1000_1000};
-        mstatus <= {51'b0, 13'b11000_1000_0000};
+        mstatus <= {51'b0, 13'b11000_1000_1000};
+        // mstatus <= {51'b0, 13'b11000_1000_0000}; // rtthread Segmentation fault(core dumped)
         // mstatus <= {51'b0, 13'b11000_0000_0000}; // rtthread Segmentation fault(core dumped)
         
         // mie: MTIE[7]=1
