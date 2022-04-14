@@ -110,16 +110,21 @@ generate
 endgenerate
 
 reg branch_ebreak_ecall_mret;
+reg branch_ebreak_ecall_mret_reg;
 
 always @(posedge clock) begin
-    if (reset)
+    if (reset) begin
         branch_ebreak_ecall_mret <= 1'b0;
-    else
+        branch_ebreak_ecall_mret_reg <= 1'b0;
+    end
+    else begin
         branch_ebreak_ecall_mret <= u_rvcpu.u_idu.instr_type_b 
                                   | u_rvcpu.u_idu.instr_ebreak 
                                   | u_rvcpu.u_idu.instr_ecall  
                                   | u_rvcpu.u_idu.instr_mret
                                   ;
+        branch_ebreak_ecall_mret_reg <= branch_ebreak_ecall_mret;
+    end
 end
 
 always @(posedge clock) begin
@@ -182,6 +187,8 @@ always @(posedge clock) begin
   if (reset)
     skip <= 0;
   else if (ls_wb_inst==32'h7b)
+    skip <= 1;
+  else if (branch_ebreak_ecall_mret_reg)
     skip <= 1;
   else
     skip <= 0; 

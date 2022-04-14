@@ -178,8 +178,8 @@ always @(posedge clk) begin
             CSR_MRET : begin
                 clint_mstatus_wen_o   <= 1'b1;
                 clint_mstatus_wdata_o <= {
-                                        //   csr_mstatus_i[63:4],
-                                          60'b1000,
+                                          csr_mstatus_i[63:4],
+                                        //   60'b1000,
                                           csr_mstatus_i[7], // MIE=MPIE[7]
                                           csr_mstatus_i[2:0]};
             end
