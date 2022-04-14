@@ -110,13 +110,13 @@ generate
 endgenerate
 
 reg branch_ebreak_ecall_mret;
-reg instr_op_is_sys;
-reg instr_op_is_sys_r0;
+reg mret;
+reg mret_r0;
 always @(posedge clock) begin
     if (reset) begin
         branch_ebreak_ecall_mret <= 1'b0;
-        instr_op_is_sys <= 1'b0;
-        instr_op_is_sys_r0 <= 1'b0;
+        mret <= 1'b0;
+        mret_r0 <= 1'b0;
     end
     else begin
         branch_ebreak_ecall_mret <= u_rvcpu.u_idu.instr_type_b 
@@ -124,8 +124,8 @@ always @(posedge clock) begin
                                   | u_rvcpu.u_idu.instr_ecall  
                                   | u_rvcpu.u_idu.instr_mret
                                   ;
-        instr_op_is_sys <=  u_rvcpu.u_idu.instr_op_is_sys;
-        instr_op_is_sys_r0 <= instr_op_is_sys;
+        mret <=  u_rvcpu.u_idu.instr_mret;
+        mret_r0 <= mret;
     end
 end
 
@@ -190,8 +190,8 @@ always @(posedge clock) begin
     skip <= 0;
   else if (ls_wb_inst==32'h7b)
     skip <= 1;
-//   else if (instr_op_is_sys_r0)
-//     skip <= 1;
+  else if (mret_r0)
+    skip <= 1;
   else
     skip <= 0; 
 end
@@ -280,28 +280,6 @@ DifftestCSRState DifftestCSRState(
   .mideleg            (0),
   .medeleg            (0)
 );
-// DifftestCSRState DifftestCSRState(
-//   .clock              (clock),
-//   .coreid             (0),
-//   .priviledgeMode     (`RISCV_PRIV_MODE_M),
-//   .mstatus            (0),
-//   .sstatus            (0),
-//   .mepc               (0),
-//   .sepc               (0),
-//   .mtval              (0),
-//   .stval              (0),
-//   .mtvec              (0),
-//   .stvec              (0),
-//   .mcause             (0),
-//   .scause             (0),
-//   .satp               (0),
-//   .mip                (0),
-//   .mie                (0),
-//   .mscratch           (0),
-//   .sscratch           (0),
-//   .mideleg            (0),
-//   .medeleg            (0)
-// );
 
 DifftestArchFpRegState DifftestArchFpRegState(
   .clock              (clock),
