@@ -258,28 +258,28 @@ DifftestTrapEvent DifftestTrapEvent(
   .instrCnt           (instrCnt)
 );
 
-DifftestCSRState DifftestCSRState(
-  .clock              (clock),
-  .coreid             (0),
-  .priviledgeMode     (`RISCV_PRIV_MODE_M),
-  .mstatus            (u_rvcpu.u_csr_file.mstatus),
-  .sstatus            (0),
-  .mepc               (u_rvcpu.u_csr_file.mepc),
-  .sepc               (0),
-  .mtval              (0),
-  .stval              (0),
-  .mtvec              (u_rvcpu.u_csr_file.mtvec),
-  .stvec              (0),
-  .mcause             (u_rvcpu.u_csr_file.mcause),
-  .scause             (0),
-  .satp               (0),
-  .mip                (u_rvcpu.u_csr_file.mip),
-  .mie                (u_rvcpu.u_csr_file.mie),
-  .mscratch           (0),
-  .sscratch           (0),
-  .mideleg            (0),
-  .medeleg            (0)
-);
+// DifftestCSRState DifftestCSRState(
+//   .clock              (clock),
+//   .coreid             (0),
+//   .priviledgeMode     (`RISCV_PRIV_MODE_M),
+//   .mstatus            (u_rvcpu.u_csr_file.mstatus),
+//   .sstatus            (0),
+//   .mepc               (u_rvcpu.u_csr_file.mepc),
+//   .sepc               (0),
+//   .mtval              (0),
+//   .stval              (0),
+//   .mtvec              (u_rvcpu.u_csr_file.mtvec),
+//   .stvec              (0),
+//   .mcause             (u_rvcpu.u_csr_file.mcause),
+//   .scause             (0),
+//   .satp               (0),
+//   .mip                (u_rvcpu.u_csr_file.mip),
+//   .mie                (u_rvcpu.u_csr_file.mie),
+//   .mscratch           (0),
+//   .sscratch           (0),
+//   .mideleg            (0),
+//   .medeleg            (0)
+// );
 // DifftestCSRState DifftestCSRState(
 //   .clock              (clock),
 //   .coreid             (0),
