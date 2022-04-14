@@ -193,8 +193,8 @@ always @(posedge clock) begin
     skip <= 0;
   else if (ls_wb_inst==32'h7b)
     skip <= 1;
-  else if (mret_r0)
-    skip <= 1;
+//   else if (mret_r0)
+//     skip <= 1;
   else
     skip <= 0; 
 end
@@ -265,7 +265,7 @@ DifftestCSRState DifftestCSRState(
   .clock              (clock),
   .coreid             (0),
   .priviledgeMode     (`RISCV_PRIV_MODE_M),
-  .mstatus            (mret_r1 ? 64'h1880 : u_rvcpu.u_csr_file.mstatus),
+  .mstatus            (mret_r1 ? 64'h88 : u_rvcpu.u_csr_file.mstatus),
   .sstatus            (0),
   .mepc               (u_rvcpu.u_csr_file.mepc),
   .sepc               (0),
