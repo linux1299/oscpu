@@ -112,11 +112,13 @@ endgenerate
 reg branch_ebreak_ecall_mret;
 reg mret;
 reg mret_r0;
+reg mret_r1;
 always @(posedge clock) begin
     if (reset) begin
         branch_ebreak_ecall_mret <= 1'b0;
         mret <= 1'b0;
         mret_r0 <= 1'b0;
+        mret_r1 <= 1'b0;
     end
     else begin
         branch_ebreak_ecall_mret <= u_rvcpu.u_idu.instr_type_b 
@@ -126,6 +128,7 @@ always @(posedge clock) begin
                                   ;
         mret <=  u_rvcpu.u_idu.instr_mret;
         mret_r0 <= mret;
+        mret_r1 <= mret_r0;
     end
 end
 
@@ -262,7 +265,7 @@ DifftestCSRState DifftestCSRState(
   .clock              (clock),
   .coreid             (0),
   .priviledgeMode     (`RISCV_PRIV_MODE_M),
-  .mstatus            (u_rvcpu.u_csr_file.mstatus),
+  .mstatus            (mret_r1 ? 64'h1880 : u_rvcpu.u_csr_file.mstatus),
   .sstatus            (0),
   .mepc               (u_rvcpu.u_csr_file.mepc),
   .sepc               (0),
