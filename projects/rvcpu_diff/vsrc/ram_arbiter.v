@@ -31,6 +31,7 @@ module ram_arbiter (
     output    [63:0] ram_timer_addr_o,
     output    [63:0] ram_timer_wdata_o,
     input     [63:0] timer_rdata_i,
+    input            timer_ready_i,
 
     // ram port
     output reg       ram_rw_cen_o,
@@ -43,18 +44,19 @@ module ram_arbiter (
     input     [63:0] ram_rw_data_i
 );
 
-parameter MASK_WIDTH    = 128;
+localparam MASK_WIDTH  = 128;
 
-localparam IDLE    = 3'd0;
-localparam IF_REQ  = 3'd1;
-localparam IF_WAIT = 3'd2;
-localparam LS_TIME = 3'd4;
-localparam LS_REQ_0= 3'd5;
-localparam LS_REQ_1= 3'd6;
-localparam LS_WAIT = 3'd7;
+localparam IDLE    = 4'd0;
+localparam IF_REQ  = 4'd1;
+localparam IF_WAIT = 4'd2;
+localparam LS_HOLD = 4'd4;
+localparam LS_REQ_TIMER = 4'd5;
+localparam LS_REQ_0= 4'd6;
+localparam LS_REQ_1= 4'd7;
+localparam LS_WAIT = 4'd8;
 
-reg  [2:0]  cur_state;
-reg  [2:0]  nxt_state;
+reg  [3:0]  cur_state;
+reg  [3:0]  nxt_state;
 
 reg  [2:0]  ifu_instr_valid_reg;
 reg         ifu_cen_reg;
@@ -149,26 +151,36 @@ always @(*) begin
 
         IF_WAIT : begin
             if (ram_rw_ready_i)
-                nxt_state = LS_TIME;
+                nxt_state = LS_HOLD;
             else
                 nxt_state = IF_WAIT;
         end
 
-        LS_TIME : begin
+        LS_HOLD : begin
             if (ifu_instr_valid_reg[2]
+                && req_timer_valid
+                && lsu_cen_i
+                )
+                nxt_state = LS_REQ_TIMER;
+
+            else if (ifu_instr_valid_reg[2]
                 && ~req_timer_valid
                 && lsu_cen_i
                 )
                 nxt_state = LS_REQ_0;
 
             else if (| ifu_instr_valid_reg[1:0])
-                nxt_state = LS_TIME;
+                nxt_state = LS_HOLD;
 
             else if (ifu_cen_reg)
                 nxt_state = IF_REQ;
 
             else
-                nxt_state = LS_TIME;
+                nxt_state = LS_HOLD;
+        end
+
+        LS_REQ_TIMER : begin
+                nxt_state = LS_WAIT;
         end
 
         LS_REQ_0 : begin
@@ -180,7 +192,10 @@ always @(*) begin
         end
 
         LS_WAIT : begin
-            if (ram_rw_ready_i || req_timer_valid) begin
+            if (timer_ready_i) begin
+                nxt_state = IDLE;
+            end
+            else if (ram_rw_ready_i ) begin
                 if (lsu_req_len==lsu_len)
                     nxt_state = IDLE;
                 else
@@ -244,22 +259,26 @@ reg         lsu_rdata_valid;
 
 always @(posedge clk) begin
     if (~rst_n) begin
-        lsu_rdata[63:0] <= 64'b0;
+        lsu_rdata <= 64'b0;
         lsu_rdata_valid <= 1'b0;
+    end
+    else if (req_timer_valid) begin
+        lsu_rdata <= timer_rdata_i;
+        lsu_rdata_valid <= timer_ready_i;
     end
     else if (cur_state==LS_WAIT && ram_rw_ready_i) begin
         if (~lsu_aligned && lsu_crossover) begin
             if (lsu_req_len==8'd1) begin
-                lsu_rdata[63:0] <= lsu_rdata[63:0] | lsu_rdata_h;
+                lsu_rdata <= lsu_rdata | lsu_rdata_h;
                 lsu_rdata_valid <= 1'b1;
             end
             else begin
-                lsu_rdata[63:0] <= lsu_rdata_l;
+                lsu_rdata <= lsu_rdata_l;
                 lsu_rdata_valid <= 1'b0;
             end
         end
         else begin
-            lsu_rdata[63:0] <= lsu_rdata_l;
+            lsu_rdata <= lsu_rdata_l;
             lsu_rdata_valid <= 1'b1;
         end
     end
@@ -268,16 +287,14 @@ always @(posedge clk) begin
     end
 end
 
-assign ram_lsu_valid_o = lsu_rdata_valid;
-
 assign ram_lsu_data_o  = lsu_rdata;
-
+assign ram_lsu_valid_o = lsu_rdata_valid;
 
 //-----------timer port----------
 assign req_timer_valid  =  (lsu_addr_i == `ADDR_MTIME)
                         || (lsu_addr_i == `ADDR_MTIMECMP);
 
-assign ram_timer_cen_o   = lsu_cen_i && req_timer_valid;
+assign ram_timer_cen_o   = cur_state==LS_REQ_TIMER;
 assign ram_timer_wen_o   = lsu_wen_i;
 assign ram_timer_addr_o  = lsu_addr_i;
 assign ram_timer_wdata_o = lsu_wdata_i;

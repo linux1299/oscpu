@@ -16,7 +16,8 @@ module timer (
     input             wen_i,
     input      [63:0] addr_i,
     input      [63:0] wdata_i,
-    output reg [63:0] timer_rdata_o
+    output reg [63:0] timer_rdata_o,
+    output reg        timer_ready_o
 
 );
 
@@ -50,6 +51,18 @@ always @(*) begin
 
         default :        timer_rdata_o = 0;
     endcase
+end
+
+always @(posedge clk) begin
+    if(~rst_n) begin
+        timer_ready_o <= 1'b0;
+    end
+    else if (cen_i) begin
+        timer_ready_o <= 1'b1;
+    end
+    else begin
+        timer_ready_o <= 1'b0;
+    end
 end
 
 assign timer_int_o = (mtime >= mtimecmp);

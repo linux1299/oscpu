@@ -115,6 +115,7 @@ wire  o_ctrl_forward_ls_rs2;
 wire  o_ctrl_load_use;
 wire  timer_int_o;
 wire [63:0] timer_rdata_o;
+wire  timer_ready_o;
 wire  ram_lsu_valid_o;
 wire [63:0] ram_lsu_data_o  ;
 wire  ram_timer_cen_o ;
@@ -501,7 +502,8 @@ timer u_timer(
     .wen_i       ( ram_timer_wen_o ),
     .addr_i      ( ram_timer_addr_o ),
     .wdata_i     ( ram_timer_wdata_o ),
-    .timer_rdata_o  ( timer_rdata_o  )
+    .timer_rdata_o  ( timer_rdata_o  ),
+    .timer_ready_o  ( timer_ready_o  )
 );
 
 
@@ -515,11 +517,13 @@ ram_arbiter u_ram_arbiter(
     .ifu_instr_valid_i ( ifu_instr_valid_o ),
     .ram_ifu_valid_o   ( ram_ifu_valid_o   ),
     .ram_ifu_data_o    ( ram_ifu_data_o    ),
+
     .lsu_cen_i         ( lsu_ram_cen_o ),
     .lsu_wen_i         ( lsu_ram_wen_o ),
     .lsu_addr_i        ( lsu_ram_addr_o ),
     .lsu_size_i        ( lsu_ram_size_o ),
     .lsu_wdata_i       ( lsu_ram_wdata_o ),
+
     .ram_lsu_valid_o   ( ram_lsu_valid_o   ),
     .ram_lsu_data_o    ( ram_lsu_data_o    ),
     .ram_timer_cen_o   ( ram_timer_cen_o   ),
@@ -527,6 +531,8 @@ ram_arbiter u_ram_arbiter(
     .ram_timer_addr_o  ( ram_timer_addr_o  ),
     .ram_timer_wdata_o ( ram_timer_wdata_o ),
     .timer_rdata_i     ( timer_rdata_o ),
+    .timer_ready_i     ( timer_ready_o ),
+
     .ram_rw_cen_o      ( ram_rw_cen_o      ),
     .ram_rw_wen_o      ( ram_rw_wen_o      ),
     .ram_rw_addr_o     ( ram_rw_addr_o     ),
