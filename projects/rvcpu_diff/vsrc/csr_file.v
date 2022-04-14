@@ -45,6 +45,7 @@ reg [63:0] mtval;
 reg [63:0] mip;
 reg [63:0] mcycle;
 reg [63:0] mhartid;
+reg [63:0] mscratch;
 
 
 //---------mcycle---------------------------
@@ -82,6 +83,7 @@ always @(posedge clk) begin
         mcause  <= 0;
         mtval   <= 0;
         mhartid <= 0;
+        mscratch<= 0;
     end
     else if (cpu_csr_wen_i) begin
         case (cpu_csr_waddr_i)
@@ -99,6 +101,8 @@ always @(posedge clk) begin
             `ADDR_MTVAL   : mtval   <= cpu_csr_wdata_i;
 
             `ADDR_MHARTID : mhartid <= cpu_csr_wdata_i;
+
+            `ADDR_MSCRATCH: mscratch<= cpu_csr_wdata_i;
 
             default : mstatus <= mstatus;
         endcase

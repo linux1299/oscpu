@@ -47,7 +47,7 @@
 `define ADDR_MIP      12'h344
 `define ADDR_MCYCLE   12'hb00
 `define ADDR_MHARTID  12'hf14
-
+`define ADDR_MSCRATCH 12'h340
 `define ADDR_MTIMECMP 64'h200_4000
 `define ADDR_MTIME    64'h200_bff8
 
