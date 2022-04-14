@@ -53,9 +53,9 @@ always @(posedge clk) begin
     if(~rst_n) begin
         mcycle <= 0;
     end
-    else begin
-        mcycle <= mcycle + 1'b1;
-    end
+    // else begin
+    //     mcycle <= mcycle + 1'b1;
+    // end
 end
 
 //--------------mip------------------------
