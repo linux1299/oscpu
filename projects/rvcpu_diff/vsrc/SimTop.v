@@ -110,13 +110,13 @@ generate
 endgenerate
 
 reg branch_ebreak_ecall_mret;
-reg ebreak_ecall_mret;
-reg ebreak_ecall_mret_r0;
+reg instr_op_is_sys;
+reg instr_op_is_sys_r0;
 always @(posedge clock) begin
     if (reset) begin
         branch_ebreak_ecall_mret <= 1'b0;
-        ebreak_ecall_mret <= 1'b0;
-        ebreak_ecall_mret_r0 <= 1'b0;
+        instr_op_is_sys <= 1'b0;
+        instr_op_is_sys_r0 <= 1'b0;
     end
     else begin
         branch_ebreak_ecall_mret <= u_rvcpu.u_idu.instr_type_b 
@@ -124,10 +124,8 @@ always @(posedge clock) begin
                                   | u_rvcpu.u_idu.instr_ecall  
                                   | u_rvcpu.u_idu.instr_mret
                                   ;
-        ebreak_ecall_mret <=  u_rvcpu.u_idu.instr_ebreak 
-                            | u_rvcpu.u_idu.instr_ecall  
-                            | u_rvcpu.u_idu.instr_mret;
-        ebreak_ecall_mret_r0 <= ebreak_ecall_mret;
+        instr_op_is_sys <=  u_rvcpu.u_idu.instr_op_is_sys;
+        instr_op_is_sys_r0 <= instr_op_is_sys;
     end
 end
 
@@ -192,7 +190,7 @@ always @(posedge clock) begin
     skip <= 0;
   else if (ls_wb_inst==32'h7b)
     skip <= 1;
-  else if (ebreak_ecall_mret_r0)
+  else if (instr_op_is_sys_r0)
     skip <= 1;
   else
     skip <= 0; 
