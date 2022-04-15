@@ -170,18 +170,19 @@ always @(posedge clk) begin
 
                 clint_mepc_wdata_o    <= mepc_wdata;
                 clint_mcause_wdata_o  <= mcause_wdata;
-                clint_mstatus_wdata_o <= {csr_mstatus_i[63:4],
-                                          1'b0, // close global int
-                                          csr_mstatus_i[2:0]};
+                clint_mstatus_wdata_o <= {csr_mstatus_i[63:8],
+                                          csr_mstatus_i[3], 3'b0, // MPIE[7]=MIE[3]
+                                          1'b0, csr_mstatus_i[2:0]// MIE[3]=0 close global int
+                                          };
             end
 
             CSR_MRET : begin
                 clint_mstatus_wen_o   <= 1'b1;
                 clint_mstatus_wdata_o <= {
                                           csr_mstatus_i[63:8],
-                                        //   4'b1000,          // MPIE[7]=1
-                                          4'b0000,          // MPIE[7]=0
-                                          csr_mstatus_i[7], // MIE=MPIE[7]
+                                          4'b1000,          // MPIE[7]=1
+                                        //   4'b0000,          // MPIE[7]=0
+                                          csr_mstatus_i[7], // MIE[3]=MPIE[7]
                                           3'b0};
             end
 

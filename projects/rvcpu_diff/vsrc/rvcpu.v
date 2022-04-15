@@ -358,11 +358,26 @@ csr_file u_csr_file(
 );
 
 //-------------Clint----------------
+reg [63:0] clint_if_id_pc;
+always @(posedge clk) begin
+    if (~rst_n)
+        clint_if_id_pc <= 0;
+
+    else if (clint_int_valid_o)
+        clint_if_id_pc <= clint_int_addr_o;
+
+    else if (idu_jump_o)
+        clint_if_id_pc <= idu_jump_pc_o;
+
+    else if (ifu_instr_valid_o)
+        clint_if_id_pc <= ifu_pc_o;
+end
+
 clint u_clint(
     .clk               ( clk   ),
     .rst_n             ( rst_n ),
     .timer_int_i       ( timer_int_o ),
-    .pc_i              ( if_id_pc ),
+    .pc_i              ( clint_if_id_pc ),
     .jump_i            ( idu_jump_o ),
     .jump_pc_i         ( idu_jump_pc_o ),
     .expt_info_i       ( idu_csr_info_o[8:6] ),

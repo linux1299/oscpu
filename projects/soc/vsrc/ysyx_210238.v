@@ -688,19 +688,20 @@ always @(posedge clk) begin
 
                 clint_mepc_wdata_o    <= mepc_wdata;
                 clint_mcause_wdata_o  <= mcause_wdata;
-                clint_mstatus_wdata_o <= {csr_mstatus_i[63:4],
-                                          1'b0, // close global int
-                                          csr_mstatus_i[2:0]};
+                clint_mstatus_wdata_o <= {csr_mstatus_i[63:8],
+                                          csr_mstatus_i[3], 3'b0, // MPIE[7]=MIE[3]
+                                          1'b0, csr_mstatus_i[2:0]// MIE[3]=0 close global int
+                                          };
             end
 
             CSR_MRET : begin
                 clint_mstatus_wen_o   <= 1'b1;
                 clint_mstatus_wdata_o <= {
                                           csr_mstatus_i[63:8],
-                                        //   4'b1000,          // MPIE[7]=1
-                                          4'b0000,          // MPIE[7]=0
-                                          csr_mstatus_i[7], // MIE=MPIE[7]
-                                          3'b0};
+                                          4'b1000,          // MPIE[7]=1
+                                        //   4'b0000,          // MPIE[7]=0
+                                          csr_mstatus_i[7], 3'b0// MIE[3]=MPIE[7]
+                                          };
             end
 
             default : begin
@@ -3035,11 +3036,26 @@ ysyx_210238_csr_file u_csr_file(
 );
 
 //-------------Clint----------------
+reg [63:0] clint_if_id_pc;
+always @(posedge clk) begin
+    if (~rst_n)
+        clint_if_id_pc <= 0;
+
+    else if (clint_int_valid_o)
+        clint_if_id_pc <= clint_int_addr_o;
+
+    else if (idu_jump_o)
+        clint_if_id_pc <= idu_jump_pc_o;
+
+    else if (ifu_instr_valid_o)
+        clint_if_id_pc <= ifu_pc_o;
+end
+
 ysyx_210238_clint u_clint(
     .clk               ( clk   ),
     .rst_n             ( rst_n ),
     .timer_int_i       ( timer_int_o ),
-    .pc_i              ( if_id_pc ),
+    .pc_i              ( clint_if_id_pc ),
     .jump_i            ( idu_jump_o ),
     .jump_pc_i         ( idu_jump_pc_o ),
     .expt_info_i       ( idu_csr_info_o[8:6] ),
