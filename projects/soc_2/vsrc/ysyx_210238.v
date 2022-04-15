@@ -1,6 +1,7 @@
+
+
 /* verilator lint_off EOFNEWLINE */
 
-// R type
 `define INSTR_R      7'b0110011
 
 // Imm
@@ -264,9 +265,7 @@ ysyx_210238_rvcpu_axi u_rvcpu_axi(
 );
 
 
-endmodule// top_soc
-
-
+endmodule
 
 
 
@@ -408,6 +407,7 @@ always @(posedge clk) begin
                 W_STATE_WRITE: if (w_done)  w_state <= W_STATE_RESP;
                 W_STATE_RESP:  if (b_hs)    w_state <= W_STATE_DONE;
                 W_STATE_DONE:               w_state <= W_STATE_IDLE;
+                default     :               w_state <= w_state;
             endcase
         end
     end
@@ -425,7 +425,7 @@ always @(posedge clk) begin
                 R_STATE_ADDR: if (ar_hs)    r_state <= R_STATE_READ;
                 R_STATE_READ: if (r_done)   r_state <= R_STATE_DONE;
                 R_STATE_DONE:               r_state <= R_STATE_IDLE;
-                default:;
+                default     :               r_state <= r_state;
             endcase
         end
     end
@@ -497,25 +497,23 @@ always @(posedge clk) begin
 end
 assign rw_ready_o = rw_ready;
 
-reg [1:0] rw_resp;
-wire      rw_resp_next = w_trans ? axi_b_resp_i : axi_r_resp_i;
-always @(posedge clk) begin
-    if (~rst_n) begin
-        rw_resp <= 0;
-    end
-    else if (trans_done) begin
-        rw_resp <= rw_resp_next;
-    end
-    else begin
-        rw_resp <= 0;
-    end
-end
-assign rw_resp_o = rw_resp;
+// reg [1:0] rw_resp;
+// wire      rw_resp_next = w_trans ? axi_b_resp_i : axi_r_resp_i;
+// always @(posedge clk) begin
+//     if (~rst_n) begin
+//         rw_resp <= 0;
+//     end
+//     else if (trans_done) begin
+//         rw_resp <= rw_resp_next;
+//     end
+//     else begin
+//         rw_resp <= 0;
+//     end
+// end
+assign rw_resp_o = 2'b00;
 
 
-endmodule// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
-// Last edit: 2021.08.31
-// Core local interruptor
+endmodule
 
  
 
@@ -736,9 +734,7 @@ end
 assign clint_hold_o =  (int_state != INT_IDLE)
                | (csr_state != CSR_IDLE);
 
-endmodule// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
-// Last edit: 2021.09.02
-// Control and Status Registers File
+endmodule
 
  
 
@@ -1193,6 +1189,7 @@ assign exu_csr_wdata_o = ({64{op_csr_csrrw }} & csrrw_wdata)
                   ;
 
 endmodule
+
 // Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2021.07.26
 // Hazard detect unit
@@ -1304,7 +1301,9 @@ assign o_ctrl_load_use = i_op_is_branch
                          | (i_if_id_rs2 == i_id_ex_rd) )
                       ;
 
-endmodule// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2021.08.31
 // Instruction Decode Unit module
 // Pure combinational logic
@@ -1739,7 +1738,9 @@ assign idu_csr_wen_o    = instr_csrrw
                         | instr_csrrc;
 
 
-endmodule// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2022.04.11
 // Instruction Fetch unit
 
@@ -1840,7 +1841,7 @@ always @(posedge clk) begin
         ifu_ram_addr_o <= jump_pc_i;
     end
     else if (ifu_ram_valid_i) begin
-        ifu_ram_addr_o <= ifu_ram_addr_o + 3'd4;
+        ifu_ram_addr_o <= ifu_ram_addr_o + 64'd4;
     end
 end
 
@@ -1855,7 +1856,9 @@ assign ifu_instr_valid_o = ifu_ram_valid_i;
 
 assign ifu_pc_o = ifu_ram_addr_o;
 
-endmodule// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2021.09.07
 // Load Store unit
 // as known as "MEM"
@@ -2021,7 +2024,9 @@ assign lsu_mem_rdata_o = rdata;
 //-----------pipeline hold---------
 assign lsu_hold_o = (nxt_state == REQ || nxt_state == WAIT);
 
-endmodule// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2022.04.11
 // Pipeline register
 
@@ -2056,7 +2061,9 @@ always @(posedge clk) begin
     end
 end
 
-endmodule// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2021.08.18
 // Access RAM arbiter
 
@@ -2147,7 +2154,7 @@ wire [2:0]   lsu_size             = lsu_size_i;
 wire [63:0]  lsu_addr             = lsu_addr_i;
 wire [63:0]  lsu_addr_aligned     = {lsu_addr_i[63:3], 3'd0};
 wire [5:0]   lsu_aligned_offset_l = {3'b0, lsu_addr_i[2:0]} << 3;
-wire [5:0]   lsu_aligned_offset_h = `AXI_DATA_WIDTH - lsu_aligned_offset_l;
+wire [5:0]   lsu_aligned_offset_h = 6'd63 + 6'd1 - lsu_aligned_offset_l;
 
 // --------------- read mask and write mask -----------------
 wire [127:0] lsu_full_rmask =(({MASK_WIDTH{lsu_size_b}} & {{MASK_WIDTH-8{1'b0}},  8'hff})
@@ -2399,7 +2406,7 @@ always @(posedge clk) begin
             LS_REQ_1: begin
                 ram_rw_cen_o   <= 1'b1;
                 ram_rw_wen_o   <= lsu_wen_i;
-                ram_rw_addr_o  <= lsu_addr_aligned + 4'd8;
+                ram_rw_addr_o  <= lsu_addr_aligned + 64'd8;
                 ram_rw_wdata_o <= lsu_wdata_h;
                 ram_rw_size_o  <= 3'b011;
                 ram_rw_wmask_o <= lsu_wmask_h;
@@ -2428,7 +2435,9 @@ end
 
 
 
-endmodule// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2021.07.21
 // Registers File
 
@@ -2499,7 +2508,9 @@ always @(*) begin
     end
 end
 
-endmodule// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2022.04.11
 // RVCPU with AXI master top module
 
@@ -2655,7 +2666,10 @@ ysyx_210238_rvcpu u_rvcpu(
 );
 
 
-endmodule// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+
+// Copyright 2022 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2022.04.12
 // RVCPU with AXI master top module
 
@@ -2960,7 +2974,7 @@ ysyx_210238_exu u_exu(
     .csr_rdata_i      ( id_ex_csr_rdata ),
     .pc_i             ( id_ex_pc ),
     .alu_info_i       ( id_ex_alu_info ),
-    .csr_info_i       ( id_ex_csr_info ),
+    .csr_info_i       ( id_ex_csr_info[5:0] ),
     .op2_is_imm_i     ( id_ex_op2_is_imm ),
     .op_is_jal_i      ( id_ex_op_is_jal ),
     .rd_wen_i         ( id_ex_rd_wen ),
@@ -3272,7 +3286,9 @@ end
 
 assign timer_int_o = (mtime >= mtimecmp);
 
-endmodule// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
+endmodule
+
+// Copyright 2021 LinYouxu, linyouxu1997@foxmail.com
 // Last edit: 2021.07.18
 // Write Back unit
 // as known as "WB"
@@ -3298,5 +3314,6 @@ assign wbu_rd_addr_o  = rd_addr_i;
 assign wbu_rd_wdata_o = mem_read_i ? mem_rdata_i : rd_data_i;
 
 endmodule // wbu
+
 
 /* verilator lint_off EOFNEWLINE */
