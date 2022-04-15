@@ -488,19 +488,19 @@ assign axi_r_ready_o    = r_state_read;
 // ------------------User Ports------------------
 assign rw_rdata_o = axi_r_data_i;
 
-reg  rw_ready;
-always @(posedge clk) begin
-    if (~rst_n) begin
-        rw_ready <= 0;
-    end
-    else if (trans_done) begin
-        rw_ready <= 1;
-    end
-    else begin
-        rw_ready <= 0;
-    end
-end
-assign rw_ready_o = rw_ready;
+// reg  rw_ready;
+// always @(posedge clk) begin
+//     if (~rst_n) begin
+//         rw_ready <= 0;
+//     end
+//     else if (trans_done) begin
+//         rw_ready <= 1;
+//     end
+//     else begin
+//         rw_ready <= 0;
+//     end
+// end
+assign rw_ready_o = trans_done;
 
 // reg [1:0] rw_resp;
 // wire      rw_resp_next = w_trans ? axi_b_resp_i : axi_r_resp_i;
@@ -813,7 +813,8 @@ always @(posedge clk) begin
 
         // mstatus: MPP[12:11]=11, MPIE[7]=?, MIE[3]=?
         // mstatus <= {51'b0, 13'b11000_1000_1000};
-        mstatus <= {51'b0, 13'b11000_0000_0000};
+        mstatus <= {51'b0, 13'b11000_1000_0000};
+        // mstatus <= {51'b0, 13'b11000_0000_0000};
         
         // mie: MTIE[7]=1
         // mie     <= {56'b0, 8'b1000_0000};
