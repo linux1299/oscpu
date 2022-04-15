@@ -110,7 +110,7 @@
 
 
 // PC
-`define PC_START        64'h8000_0000
+`define PC_START        64'h3000_0000
 
 `timescale 1ns/1ns
 
@@ -441,7 +441,10 @@ wire [AXI_USER_WIDTH-1:0] axi_user = {AXI_USER_WIDTH{1'b0}};
 assign axi_aw_id_o      = axi_id;
 assign axi_aw_addr_o    = rw_addr_i;
 assign axi_aw_len_o     = 8'd0;
-assign axi_aw_size_o    = rw_size_i;
+// assign axi_aw_size_o    = rw_size_i;
+assign axi_aw_size_o    = (axi_aw_addr_o >= 32'h1000_0000 && axi_aw_addr_o <= 32'h1000_0fff) ? 3'b000 : // UART
+                          (axi_aw_addr_o >= 32'h1000_1000 && axi_aw_addr_o <= 32'h1000_1fff) ? 3'b010 : // SPI
+                          (axi_aw_addr_o >= 32'h3000_0000 && axi_aw_addr_o <= 32'h3fff_ffff) ? 3'b010 : rw_size_i;
 assign axi_aw_burst_o   = `AXI_BURST_TYPE_INCR;
 assign axi_aw_lock_o    = 1'b0;
 assign axi_aw_cache_o   = `AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE;
@@ -470,7 +473,9 @@ assign axi_ar_prot_o    = `AXI_PROT_UNPRIVILEGED_ACCESS;
 assign axi_ar_id_o      = axi_id;
 assign axi_ar_user_o    = axi_user;
 assign axi_ar_len_o     = 8'd0;
-assign axi_ar_size_o    = rw_size_i;
+assign axi_ar_size_o    = (axi_aw_addr_o >= 32'h1000_0000 && axi_aw_addr_o <= 32'h1000_0fff) ? 3'b000 : // UART
+                          (axi_aw_addr_o >= 32'h1000_1000 && axi_aw_addr_o <= 32'h1000_1fff) ? 3'b010 : // SPI
+                          (axi_aw_addr_o >= 32'h3000_0000 && axi_aw_addr_o <= 32'h3fff_ffff) ? 3'b010 : rw_size_i;
 assign axi_ar_burst_o   = `AXI_BURST_TYPE_INCR;
 assign axi_ar_lock_o    = 1'b0;
 assign axi_ar_cache_o   = `AXI_ARCACHE_NORMAL_NON_CACHEABLE_NON_BUFFERABLE;
