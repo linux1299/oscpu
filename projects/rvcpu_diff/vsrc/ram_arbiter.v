@@ -291,9 +291,9 @@ assign ram_lsu_data_o  = lsu_rdata;
 assign ram_lsu_valid_o = lsu_rdata_valid;
 
 //-----------timer port----------
-// assign req_timer_valid  =  (lsu_addr_i == `ADDR_MTIME)
-//                         || (lsu_addr_i == `ADDR_MTIMECMP);
-assign req_timer_valid = 1'b0;
+assign req_timer_valid  =  (lsu_addr_i == `ADDR_MTIME)
+                        || (lsu_addr_i == `ADDR_MTIMECMP);
+
 assign ram_timer_cen_o   = cur_state==LS_REQ_TIMER;
 assign ram_timer_wen_o   = lsu_wen_i;
 assign ram_timer_addr_o  = lsu_addr_i;

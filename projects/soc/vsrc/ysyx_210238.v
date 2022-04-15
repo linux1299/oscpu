@@ -442,7 +442,8 @@ assign axi_aw_id_o      = axi_id;
 assign axi_aw_addr_o    = rw_addr_i;
 assign axi_aw_len_o     = 8'd0;
 // assign axi_aw_size_o    = rw_size_i;
-assign axi_aw_size_o    = (axi_aw_addr_o >= 32'h1000_0000 && axi_aw_addr_o <= 32'h1000_0fff) ? 3'b000 : // UART
+assign axi_aw_size_o    = (axi_aw_addr_o <  32'h01ff_ffff) ? 3'b010 : // reserve
+                          (axi_aw_addr_o >= 32'h1000_0000 && axi_aw_addr_o <= 32'h1000_0fff) ? 3'b000 : // UART
                           (axi_aw_addr_o >= 32'h1000_1000 && axi_aw_addr_o <= 32'h1000_1fff) ? 3'b010 : // SPI
                           (axi_aw_addr_o >= 32'h3000_0000 && axi_aw_addr_o <= 32'h3fff_ffff) ? 3'b010 : rw_size_i;
 assign axi_aw_burst_o   = `AXI_BURST_TYPE_FIXED;
