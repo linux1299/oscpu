@@ -383,16 +383,16 @@ wire [63:0] o_rw_rdata;
 
 
 // ============== for sim ================
-reg [63:0] pc_cnt;
-always @(posedge clk) begin
-    if (reset) begin
-        pc_cnt <= 0;
-    end
-    else if (o_ifu_instr_valid) begin
-        $display("pc = %h, pc_cnt = %d \n", o_ifu_pc, pc_cnt);
-        pc_cnt <= pc_cnt + 1;
-    end
-end
+// reg [63:0] pc_cnt;
+// always @(posedge clk) begin
+//     if (reset) begin
+//         pc_cnt <= 0;
+//     end
+//     else if (o_ifu_instr_valid) begin
+//         $display("pc = %h, pc_cnt = %d \n", o_ifu_pc, pc_cnt);
+//         pc_cnt <= pc_cnt + 1;
+//     end
+// end
 
 
 
