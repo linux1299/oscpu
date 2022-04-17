@@ -1664,20 +1664,20 @@ always @(posedge clk) begin
             CSR_MSTATUS : begin
                 o_csr_wen   <= 1'b1;
                 o_csr_waddr <= `ADDR_MSTATUS;
-                clint_mstatus_wdata_o <= {i_csr_mstatus[63:8],
-                                          i_csr_mstatus[3], 3'b0, // MPIE[7]=MIE[3]
-                                          1'b0, i_csr_mstatus[2:0]// MIE[3]=0 close global int
-                                          };
+                o_csr_wdata <= {i_csr_mstatus[63:8],
+                                i_csr_mstatus[3], 3'b0, // MPIE[7]=MIE[3]
+                                1'b0, i_csr_mstatus[2:0]// MIE[3]=0 close global int
+                                };
             end
 
             CSR_MRET : begin
                 o_csr_wen   <= 1'b1;
                 o_csr_waddr <= `ADDR_MSTATUS;
-                clint_mstatus_wdata_o <= {
-                                          i_csr_mstatus[63:8],
-                                          4'b1000,          // MPIE[7]=1
-                                          i_csr_mstatus[7], // MIE[3]=MPIE[7]
-                                          3'b0};
+                o_csr_wdata <= {
+                                i_csr_mstatus[63:8],
+                                4'b1000,          // MPIE[7]=1
+                                i_csr_mstatus[7], // MIE[3]=MPIE[7]
+                                3'b0};
             end
 
             default : begin
