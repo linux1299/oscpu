@@ -51,6 +51,11 @@ int main(int argc, char *argv[])
     while (!Verilated::gotFinish() && signal_received == 0)
     {
         emu->step();
+        long long unsigned mask = 0xffff;
+        long long unsigned cycles = (emu->get_cycle()) & mask;
+        if (cycles==0x8000) {
+            printf("\n");
+        }
     }
 
     return 0;
