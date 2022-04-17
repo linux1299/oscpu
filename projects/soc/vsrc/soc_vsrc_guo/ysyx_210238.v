@@ -111,6 +111,17 @@ module ysyx_210238
 /* verilator lint_on UNUSED */
 );
 
+    // ============== for sim ================
+// reg [63:0] pc_cnt;
+// always @(posedge clk) begin
+//     if (reset) begin
+//         pc_cnt <= 0;
+//     end
+//     else if (o_ifu_instr_valid) begin
+//         $display("pc = %h, pc_cnt = %d \n", o_ifu_pc, pc_cnt);
+//         pc_cnt <= pc_cnt + 1;
+//     end
+// end
 
     // Put mvendorid to 64'b1
     // Put mvendorid to 64'b1
