@@ -215,6 +215,18 @@ wire [3:0] axi_ar_cache_o ;
 wire [3:0] axi_ar_qos_o   ; 
 wire [3:0] axi_ar_region_o;
 
+// ============== for sim ================
+reg [63:0] pc_cnt;
+always @(posedge clk) begin
+    if (reset) begin
+        pc_cnt <= 0;
+    end
+    else if (u_rvcpu_axi.u_rvcpu.ifu_instr_valid_o) begin
+        $display("pc = %h, pc_cnt = %d \n", u_rvcpu_axi.u_rvcpu.ifu_pc_o, pc_cnt);
+        pc_cnt <= pc_cnt + 1;
+    end
+end
+
 ysyx_210238_rvcpu_axi u_rvcpu_axi(
     .clk             ( clk             ),
     .rst_n           ( rst_n           ),
