@@ -216,16 +216,16 @@ wire [3:0] axi_ar_qos_o   ;
 wire [3:0] axi_ar_region_o;
 
 // ============== for sim ================
-reg [63:0] pc_cnt;
-always @(posedge clk) begin
-    if (reset) begin
-        pc_cnt <= 0;
-    end
-    else if (u_rvcpu_axi.u_rvcpu.ifu_instr_valid_o) begin
-        $display("pc = %h, pc_cnt = %d \n", u_rvcpu_axi.u_rvcpu.ifu_pc_o, pc_cnt);
-        pc_cnt <= pc_cnt + 1;
-    end
-end
+// reg [63:0] pc_cnt;
+// always @(posedge clk) begin
+//     if (reset) begin
+//         pc_cnt <= 0;
+//     end
+//     else if (u_rvcpu_axi.u_rvcpu.ifu_instr_valid_o) begin
+//         $display("pc = %h, pc_cnt = %d \n", u_rvcpu_axi.u_rvcpu.ifu_pc_o, pc_cnt);
+//         pc_cnt <= pc_cnt + 1;
+//     end
+// end
 
 ysyx_210238_rvcpu_axi u_rvcpu_axi(
     .clk             ( clk             ),
@@ -702,7 +702,7 @@ always @(posedge clk) begin
                 clint_mepc_wdata_o    <= mepc_wdata;
                 clint_mcause_wdata_o  <= mcause_wdata;
                 clint_mstatus_wdata_o <= {csr_mstatus_i[63:8],
-                                          csr_mstatus_i[3], 3'b0, // MPIE[7]=MIE[3]
+                                          csr_mstatus_i[3], csr_mstatus_i[6:4], // MPIE[7]=MIE[3]
                                           1'b0, csr_mstatus_i[2:0]// MIE[3]=0 close global int
                                           };
             end
@@ -711,9 +711,8 @@ always @(posedge clk) begin
                 clint_mstatus_wen_o   <= 1'b1;
                 clint_mstatus_wdata_o <= {
                                           csr_mstatus_i[63:8],
-                                          4'b1000,          // MPIE[7]=1
-                                        //   4'b0000,          // MPIE[7]=0
-                                          csr_mstatus_i[7], 3'b0// MIE[3]=MPIE[7]
+                                          1'b1, csr_mstatus_i[6:4], // MPIE[7]=1
+                                          csr_mstatus_i[7], csr_mstatus_i[2:0]// MIE[3]=MPIE[7]
                                           };
             end
 
@@ -816,8 +815,8 @@ always @(posedge clk) begin
     if(~rst_n) begin
         mip <= 0;
     end
-    else if (timer_int_i) begin
-        mip[7] <= 1'b1;
+    else begin
+        mip <= {52'b0, 1'b0, 3'b0, timer_int_i, 7'b0};
     end
 end
 
@@ -827,8 +826,8 @@ always @(posedge clk) begin
 
         // mstatus: MPP[12:11]=11, MPIE[7]=?, MIE[3]=?
         // mstatus <= {51'b0, 13'b11000_1000_1000};
-        // mstatus <= {51'b0, 13'b11000_1000_0000};
-        mstatus <= {51'b0, 13'b11000_0000_0000};
+        mstatus <= {51'b0, 13'b11000_1000_0000};
+        // mstatus <= {51'b0, 13'b11000_0000_0000};
         
         // mie: MTIE[7]=1
         // mie     <= {56'b0, 8'b1000_0000};
@@ -843,9 +842,16 @@ always @(posedge clk) begin
     else if (cpu_csr_wen_i) begin
         case (cpu_csr_waddr_i)
 
-            `ADDR_MSTATUS : mstatus <= cpu_csr_wdata_i;
+            `ADDR_MSTATUS : mstatus <= {(cpu_csr_wdata_i[16:15]==2'b11 | cpu_csr_wdata_i[14:13]==2'b11), // SD
+										50'b0,
+										2'b11, //MPP
+										3'b000,
+										cpu_csr_wdata_i[7], //MPIE
+										3'b0,
+										cpu_csr_wdata_i[3], //MIE
+										3'b0};
 
-            `ADDR_MIE     : mie     <= cpu_csr_wdata_i;
+            `ADDR_MIE     : mie     <= {52'b0, cpu_csr_wdata_i[11], 3'b0, cpu_csr_wdata_i[7], 3'b0, cpu_csr_wdata_i[3], 3'b0};
 
             `ADDR_MTVEC   : mtvec   <= cpu_csr_wdata_i;
 
@@ -875,6 +881,7 @@ always @(posedge clk) begin
 
             mstatus <= clint_mstatus_wdata_i;
         end
+        mtvec <= {mtvec[63:2], 2'b0};
     end
 end
 
