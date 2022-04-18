@@ -1550,10 +1550,12 @@ always @(*) begin
     if(op_ecall || op_ebreak) begin
         int_state = INT_EXPT; // envirionment call or break
     end
+    // else if (i_global_int_en &
+    //         ((i_timer_int & i_mtime_int_en) |
+    //          (i_timer_int & i_mtime_int_pend)) ) begin
     else if (i_global_int_en &
-            ((i_timer_int & i_mtime_int_en) |
-             (i_timer_int & i_mtime_int_pend)) ) begin
-
+            i_timer_int & 
+            i_mtime_int_en) begin
         int_state = INT_TIME; // timer interrupt
     end
     else if (op_mret) begin
