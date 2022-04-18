@@ -216,16 +216,16 @@ wire [3:0] axi_ar_qos_o   ;
 wire [3:0] axi_ar_region_o;
 
 // ============== for sim ================
-reg [63:0] pc_cnt;
-always @(posedge clk) begin
-    if (reset) begin
-        pc_cnt <= 0;
-    end
-    else if (u_rvcpu_axi.u_rvcpu.ifu_instr_valid_o) begin
-        $display("pc = %h, pc_cnt = %d \n", u_rvcpu_axi.u_rvcpu.ifu_pc_o, pc_cnt);
-        pc_cnt <= pc_cnt + 1;
-    end
-end
+// reg [63:0] pc_cnt;
+// always @(posedge clk) begin
+//     if (reset) begin
+//         pc_cnt <= 0;
+//     end
+//     else if (u_rvcpu_axi.u_rvcpu.ifu_instr_valid_o) begin
+//         $display("pc = %h, pc_cnt = %d \n", u_rvcpu_axi.u_rvcpu.ifu_pc_o, pc_cnt);
+//         pc_cnt <= pc_cnt + 1;
+//     end
+// end
 
 ysyx_210238_rvcpu_axi u_rvcpu_axi(
     .clk             ( clk             ),
@@ -843,7 +843,8 @@ always @(posedge clk) begin
         case (cpu_csr_waddr_i)
 
             `ADDR_MSTATUS : mstatus <= {(cpu_csr_wdata_i[16:15]==2'b11 | cpu_csr_wdata_i[14:13]==2'b11), // SD
-										50'b0,
+										48'b0,
+                                        cpu_csr_wdata_i[14:13], //FS
 										2'b11, //MPP
 										3'b000,
 										cpu_csr_wdata_i[7], //MPIE

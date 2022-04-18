@@ -843,7 +843,8 @@ always @(posedge clk) begin
         case (cpu_csr_waddr_i)
 
             `ADDR_MSTATUS : mstatus <= {(cpu_csr_wdata_i[16:15]==2'b11 | cpu_csr_wdata_i[14:13]==2'b11), // SD
-										50'b0,
+										48'b0,
+                                        cpu_csr_wdata_i[14:13], //FS
 										2'b11, //MPP
 										3'b000,
 										cpu_csr_wdata_i[7], //MPIE
