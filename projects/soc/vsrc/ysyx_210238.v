@@ -226,6 +226,11 @@ wire [3:0] axi_ar_region_o;
 //         pc_cnt <= pc_cnt + 1;
 //     end
 // end
+always @(posedge clk) begin
+    if (io_master_awvalid) begin
+        $display("waddr=%h, wdata=%h, wstrb=%h \n", io_master_awaddr, io_master_wdata, io_master_wstrb);
+    end
+end
 
 ysyx_210238_rvcpu_axi u_rvcpu_axi(
     .clk             ( clk             ),

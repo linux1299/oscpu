@@ -393,7 +393,11 @@ wire [63:0] o_rw_rdata;
 //         pc_cnt <= pc_cnt + 1;
 //     end
 // end
-
+always @(posedge clock) begin
+    if (io_master_awvalid) begin
+        $display("waddr=%h, wdata=%h, wstrb=%h \n", io_master_awaddr, io_master_wdata, io_master_wstrb);
+    end
+end
 
 
 
