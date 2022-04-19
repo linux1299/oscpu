@@ -226,11 +226,11 @@ wire [3:0] axi_ar_region_o;
 //         pc_cnt <= pc_cnt + 1;
 //     end
 // end
-always @(posedge clk) begin
-    if (io_master_awvalid) begin
-        $display("waddr=%h, wdata=%h, wstrb=%h \n", io_master_awaddr, io_master_wdata, io_master_wstrb);
-    end
-end
+// always @(posedge clk) begin
+//     if (io_master_awvalid) begin
+//         $display("waddr=%h, wdata=%h, wstrb=%h \n", io_master_awaddr, io_master_wdata, io_master_wstrb);
+//     end
+// end
 
 ysyx_210238_rvcpu_axi u_rvcpu_axi(
     .clk             ( clk             ),
@@ -586,6 +586,7 @@ localparam INT_MRET = 3;
 localparam CSR_IDLE    = 0;
 localparam CSR_MEPC_MCAUSE_MSTATUS = 1;
 localparam CSR_MRET    = 2;
+localparam CSR_WRITE_MMM= 3;
 
 reg  [1:0]  int_state;
 reg  [2:0]  csr_state;
@@ -638,9 +639,12 @@ always @(posedge clk) begin
             end
 
             CSR_MEPC_MCAUSE_MSTATUS :
-                    csr_state <= CSR_IDLE;
+                    csr_state <= CSR_WRITE_MMM;
 
             CSR_MRET :
+                    csr_state <= CSR_IDLE;
+            
+            CSR_WRITE_MMM :
                     csr_state <= CSR_IDLE;
 
             default :
@@ -739,17 +743,17 @@ always @(posedge clk) begin
     end
     else begin
         case (csr_state)
-            CSR_MEPC_MCAUSE_MSTATUS : begin
+            CSR_WRITE_MMM : begin
                 clint_int_addr_o  <= csr_mtvec_i;
-                clint_int_valid_o <= 1'b1;
+                clint_int_valid_o <= 1;
             end
 
             CSR_MRET : begin
                 clint_int_addr_o  <= csr_mepc_i;
-                clint_int_valid_o <= 1'b1;
+                clint_int_valid_o <= 1;
             end
             default : begin
-                clint_int_addr_o  <= 0;
+                clint_int_addr_o  <= clint_int_addr_o;
                 clint_int_valid_o <= 0;
             end
         endcase
@@ -757,7 +761,7 @@ always @(posedge clk) begin
 end
 
 assign clint_hold_o =  (int_state != INT_IDLE)
-               | (csr_state != CSR_IDLE);
+                    || (csr_state != CSR_IDLE);
 
 endmodule
 
@@ -850,10 +854,9 @@ always @(posedge clk) begin
         case (cpu_csr_waddr_i)
 
             `ADDR_MSTATUS : mstatus <= {(cpu_csr_wdata_i[16:15]==2'b11 | cpu_csr_wdata_i[14:13]==2'b11), // SD
-										48'b0,
-                                        cpu_csr_wdata_i[14:13], //FS
+										50'b0,
 										2'b11, //MPP
-										3'b000,
+										3'b0,
 										cpu_csr_wdata_i[7], //MPIE
 										3'b0,
 										cpu_csr_wdata_i[3], //MIE
@@ -1811,6 +1814,7 @@ reg  [1:0]  nxt_state;
 localparam IDLE = 2'd0;
 localparam REQ  = 2'd1;
 localparam WAIT = 2'd2;
+localparam INT  = 2'd3;
 
 //-------------State machine-----------
 always @(posedge clk) begin
@@ -1837,11 +1841,19 @@ always @(*) begin
                 nxt_state = WAIT;
         end
         WAIT : begin
-            if (ifu_ram_valid_i)
+            if (int_cen_i)
+                nxt_state = INT;
+            else if (ifu_ram_valid_i)
                 nxt_state = IDLE;
             else
                 nxt_state = WAIT;
             end
+        INT : begin
+            if (ifu_ram_valid_i)
+                nxt_state = REQ;
+            else   
+                nxt_state = INT;
+        end
         default : nxt_state = IDLE;
     endcase
 end
@@ -1866,7 +1878,7 @@ always @(posedge clk) begin
     if(~rst_n) begin
         ifu_ram_addr_o <= `PC_START;
     end
-    else if (hold_i) begin
+    else if (hold_i || cur_state==INT) begin
         ifu_ram_addr_o <= ifu_ram_addr_o;
     end
     else if (int_cen_i) begin
@@ -1887,7 +1899,7 @@ assign ifu_ram_size_o = 3'b011;
 assign ifu_instr_o = (ifu_ram_addr_o[2:0]==3'd0) ?
                       ifu_ram_data_i[31:0] : ifu_ram_data_i[63:32];
 
-assign ifu_instr_valid_o = ifu_ram_valid_i;
+assign ifu_instr_valid_o = ifu_ram_valid_i && (cur_state!=INT);
 
 assign ifu_pc_o = ifu_ram_addr_o;
 
