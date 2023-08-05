@@ -153,14 +153,48 @@ reg [31:0] writeback_inst;
 reg        writeback_valid;
 wire[63:0] regs_o [0:31];
 
-genvar j;
-generate
-	for (j = 0; j < 32; j = j + 1) begin
-		// assign regs_o[j] = (writeback_wen && u_DandRiscvSimple.writeback_RD_ADDR ==j && j!=0) ? 
-    //                     u_DandRiscvSimple.writeback_RD : u_DandRiscvSimple.regFileModule_1.reg_file[j];
-    assign regs_o[j] = u_DandRiscvSimple.regFileModule_1.reg_file[j];
-	end
-endgenerate
+// genvar j;
+// generate
+// 	for (j = 0; j < 32; j = j + 1) begin
+// 		// assign regs_o[j] = (writeback_wen && u_DandRiscvSimple.writeback_RD_ADDR ==j && j!=0) ? 
+//     //                     u_DandRiscvSimple.writeback_RD : u_DandRiscvSimple.regFileModule_1.reg_file[j];
+//     assign regs_o[j] = u_DandRiscvSimple.regFileModule_1.reg_file[j];
+    
+// 	end
+// endgenerate
+
+assign regs_o[0] = u_DandRiscvSimple.regFileModule_1.reg_file_0;
+assign regs_o[1] = u_DandRiscvSimple.regFileModule_1.reg_file_1;
+assign regs_o[2] = u_DandRiscvSimple.regFileModule_1.reg_file_2;
+assign regs_o[3] = u_DandRiscvSimple.regFileModule_1.reg_file_3;
+assign regs_o[4] = u_DandRiscvSimple.regFileModule_1.reg_file_4;
+assign regs_o[5] = u_DandRiscvSimple.regFileModule_1.reg_file_5;
+assign regs_o[6] = u_DandRiscvSimple.regFileModule_1.reg_file_6;
+assign regs_o[7] = u_DandRiscvSimple.regFileModule_1.reg_file_7;
+assign regs_o[8] = u_DandRiscvSimple.regFileModule_1.reg_file_8;
+assign regs_o[9] = u_DandRiscvSimple.regFileModule_1.reg_file_9;
+assign regs_o[10] = u_DandRiscvSimple.regFileModule_1.reg_file_10;
+assign regs_o[11] = u_DandRiscvSimple.regFileModule_1.reg_file_11;
+assign regs_o[12] = u_DandRiscvSimple.regFileModule_1.reg_file_12;
+assign regs_o[13] = u_DandRiscvSimple.regFileModule_1.reg_file_13;
+assign regs_o[14] = u_DandRiscvSimple.regFileModule_1.reg_file_14;
+assign regs_o[15] = u_DandRiscvSimple.regFileModule_1.reg_file_15;
+assign regs_o[16] = u_DandRiscvSimple.regFileModule_1.reg_file_16;
+assign regs_o[17] = u_DandRiscvSimple.regFileModule_1.reg_file_17;
+assign regs_o[18] = u_DandRiscvSimple.regFileModule_1.reg_file_18;
+assign regs_o[19] = u_DandRiscvSimple.regFileModule_1.reg_file_19;
+assign regs_o[20] = u_DandRiscvSimple.regFileModule_1.reg_file_20;
+assign regs_o[21] = u_DandRiscvSimple.regFileModule_1.reg_file_21;
+assign regs_o[22] = u_DandRiscvSimple.regFileModule_1.reg_file_22;
+assign regs_o[23] = u_DandRiscvSimple.regFileModule_1.reg_file_23;
+assign regs_o[24] = u_DandRiscvSimple.regFileModule_1.reg_file_24;
+assign regs_o[25] = u_DandRiscvSimple.regFileModule_1.reg_file_25;
+assign regs_o[26] = u_DandRiscvSimple.regFileModule_1.reg_file_26;
+assign regs_o[27] = u_DandRiscvSimple.regFileModule_1.reg_file_27;
+assign regs_o[28] = u_DandRiscvSimple.regFileModule_1.reg_file_28;
+assign regs_o[29] = u_DandRiscvSimple.regFileModule_1.reg_file_29;
+assign regs_o[30] = u_DandRiscvSimple.regFileModule_1.reg_file_30;
+assign regs_o[31] = u_DandRiscvSimple.regFileModule_1.reg_file_31;
 
 reg branch_ebreak_ecall_mret;
 always @(posedge clock) begin
@@ -209,7 +243,7 @@ always @(posedge clock) begin
     cmt_valid <= writeback_wen | writeback_valid;
     regs_diff <= regs_o;
     trap      <= writeback_inst[6:0] == 7'h6b;
-    trap_code <= u_DandRiscvSimple.regFileModule_1.reg_file[10][7:0];
+    trap_code <= u_DandRiscvSimple.regFileModule_1.reg_file_10[7:0];
     cycleCnt  <= cycleCnt + 1;
     instrCnt  <= instrCnt + (writeback_wen | writeback_valid);
   end
