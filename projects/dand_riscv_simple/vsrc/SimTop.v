@@ -202,7 +202,7 @@ always @(posedge clock) begin
         branch_ebreak_ecall_mret <= 1'b0;
     end
     else begin
-        branch_ebreak_ecall_mret <= u_DandRiscvSimple.execute_REDIRECT_VALID;
+        branch_ebreak_ecall_mret <= 1'b0;
     end
 end
 
