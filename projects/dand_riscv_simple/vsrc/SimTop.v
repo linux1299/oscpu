@@ -168,10 +168,12 @@ always@(*) begin
 end
 
 always @(posedge clock) begin
-    if (branch_ebreak_ecall_mret)
-        writeback_valid <= 1;
-    else
-        writeback_valid <= 0;
+  if (u_DandRiscvSimple.writeback_arbitration_isValid)
+    writeback_valid <= 1;
+  else if (branch_ebreak_ecall_mret)
+    writeback_valid <= 1;
+  else
+    writeback_valid <= 0;
 end
 
 always @(posedge clock) begin
