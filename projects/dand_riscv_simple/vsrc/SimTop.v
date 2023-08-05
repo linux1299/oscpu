@@ -206,7 +206,7 @@ end
 
 always@(posedge clock) begin
   if (cmt_valid) begin
-    $display("pc:%h, inst:%h, rd_addr:%h, rd_value:%h", cmt_pc, cmt_inst, cmt_wdest, cmt_wdata);
+    $display("pc:%h, inst:%h, cmt_wen:%b rd_addr:%h, rd_value:%h", cmt_pc, cmt_inst, cmt_wen, cmt_wdest, cmt_wdata);
   end
 end
 
