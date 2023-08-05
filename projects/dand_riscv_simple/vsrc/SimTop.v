@@ -90,7 +90,7 @@ end
 
 wire [63:0] dram_data_o;
 wire [63:0] dram_addr_tmp = (dcache_cmd_payload_addr-`PC_START);
-wire [27:0] dram_addr = dram_addr_tmp[27:0];
+wire [27:0] dram_addr = dram_addr_tmp[30:3];
 wire [63:0] dram_wmask={{8{dcache_cmd_payload_wstrb[7]}}, 
                         {8{dcache_cmd_payload_wstrb[6]}}, 
                         {8{dcache_cmd_payload_wstrb[5]}}, 
