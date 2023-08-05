@@ -64,16 +64,16 @@ DandRiscvSimple u_DandRiscvSimple(
 wire [63:0] iram_data_o;
 wire [63:0] iram_addr_tmp = (icache_cmd_payload_addr-`PC_START);
 wire [27:0] iram_addr = iram_addr_tmp[30:3];
-// RAMHelper RAMHelper_instruction(
-//     .clk   ( clock   ),
-//     .en    ( icache_cmd_valid    ),
-//     .rIdx  ( iram_addr ),
-//     .rdata ( iram_data_o ),
-//     .wIdx  ( iram_addr ),
-//     .wdata ( 63'b0     ),
-//     .wmask ( 8'b0      ),
-//     .wen   ( 1'b0      )
-// );
+RAMHelper RAMHelper_instruction(
+    .clk   ( clock   ),
+    .en    ( icache_cmd_valid    ),
+    .rIdx  ( iram_addr ),
+    .rdata ( iram_data_o ),
+    .wIdx  ( iram_addr ),
+    .wdata ( 63'b0     ),
+    .wmask ( 8'b0      ),
+    .wen   ( 1'b0      )
+);
 
 always @(posedge clock) begin
     if (icache_cmd_valid) begin
