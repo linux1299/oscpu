@@ -240,12 +240,12 @@ always @(posedge clock) begin
     cmt_wdata <= u_DandRiscvSimple.writeback_RD;
     cmt_pc    <= writeback_pc;
     cmt_inst  <= writeback_inst;
-    cmt_valid <= writeback_wen | writeback_valid;
+    cmt_valid <= writeback_valid;
     regs_diff <= regs_o;
     trap      <= writeback_inst[6:0] == 7'h6b;
     trap_code <= u_DandRiscvSimple.regFileModule_1.reg_file_10[7:0];
     cycleCnt  <= cycleCnt + 1;
-    instrCnt  <= instrCnt + (writeback_wen | writeback_valid);
+    instrCnt  <= instrCnt + writeback_valid;
   end
 end
 
