@@ -137,6 +137,7 @@ reg [63:0] instrCnt;
 reg [63:0] regs_diff [0:31];
 
 reg [63:0] writeback_pc;
+reg        writeback_wen;
 reg [31:0] writeback_inst;
 reg        writeback_valid;
 wire[63:0] regs_o [0:31];
@@ -144,7 +145,7 @@ wire[63:0] regs_o [0:31];
 genvar j;
 generate
 	for (j = 0; j < 32; j = j + 1) begin
-		assign regs_o[j] = (u_DandRiscvSimple.writeback_RD_WEN && u_DandRiscvSimple.writeback_RD_ADDR ==j && j!=0) ? 
+		assign regs_o[j] = (writeback_wen && u_DandRiscvSimple.writeback_RD_ADDR ==j && j!=0) ? 
                         u_DandRiscvSimple.writeback_RD : u_DandRiscvSimple.regFileModule_1.reg_file[j];
 	end
 endgenerate
@@ -155,35 +156,21 @@ always @(posedge clock) begin
         branch_ebreak_ecall_mret <= 1'b0;
     end
     else begin
-        branch_ebreak_ecall_mret <= 1'b0;//TODO:
+        branch_ebreak_ecall_mret <= u_DandRiscvSimple.execute_REDIRECT_VALID;
     end
 end
 
+always@(*) begin
+  writeback_wen = u_DandRiscvSimple.writeback_arbitration_isValid;
+  writeback_pc = u_DandRiscvSimple.writeback_PC[63:0];
+  writeback_inst = u_DandRiscvSimple.writeback_INSTRUCTION[31:0];
+end
+
 always @(posedge clock) begin
-    if (u_DandRiscvSimple.dcache_rsp_valid)
-        writeback_valid <= 1;
-    else if (branch_ebreak_ecall_mret)
+    if (branch_ebreak_ecall_mret)
         writeback_valid <= 1;
     else
         writeback_valid <= 0;
-end
-
-always @(posedge clock) begin
-    if (reset) begin
-        writeback_pc <= 0;
-    end
-    else if (u_DandRiscvSimple.fetch_arbitration_isValid) begin
-        writeback_pc <= u_DandRiscvSimple.fetch_PC[63:0];
-    end
-end
-
-always @(posedge clock) begin
-    if (reset) begin
-        writeback_inst <= 0;
-    end
-    else if (u_DandRiscvSimple.fetch_arbitration_isValid) begin
-        writeback_inst <= u_DandRiscvSimple.fetch_INSTRUCTION[31:0];
-    end
 end
 
 always @(posedge clock) begin
@@ -200,17 +187,17 @@ always @(posedge clock) begin
       instrCnt} <= 0;
   end
   else if (~trap) begin
-    cmt_wen   <= u_DandRiscvSimple.writeback_RD_WEN;
+    cmt_wen   <= writeback_wen;
     cmt_wdest <= {3'd0, u_DandRiscvSimple.writeback_RD_ADDR};
     cmt_wdata <= u_DandRiscvSimple.writeback_RD;
     cmt_pc    <= writeback_pc;
     cmt_inst  <= writeback_inst;
-    cmt_valid <= u_DandRiscvSimple.writeback_RD_WEN | writeback_valid;
+    cmt_valid <= writeback_wen | writeback_valid;
     regs_diff <= regs_o;
     trap      <= writeback_inst[6:0] == 7'h6b;
     trap_code <= u_DandRiscvSimple.regFileModule_1.reg_file[10][7:0];
     cycleCnt  <= cycleCnt + 1;
-    instrCnt  <= instrCnt + (u_DandRiscvSimple.writeback_RD_WEN | writeback_valid);
+    instrCnt  <= instrCnt + (writeback_wen | writeback_valid);
   end
 end
 
