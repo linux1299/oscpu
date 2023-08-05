@@ -161,7 +161,7 @@ always @(posedge clock) begin
 end
 
 always@(*) begin
-  writeback_wen = u_DandRiscvSimple.writeback_arbitration_isValid;
+  writeback_wen = u_DandRiscvSimple.writeback_RD_WEN & u_DandRiscvSimple.writeback_arbitration_isValid;
   writeback_pc = u_DandRiscvSimple.writeback_PC[63:0];
   writeback_inst = u_DandRiscvSimple.writeback_INSTRUCTION[31:0];
 end
