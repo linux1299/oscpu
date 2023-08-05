@@ -110,17 +110,28 @@ RAMHelper RAMHelper_data(
     .wen   ( dcache_cmd_payload_wen)
 );
 
-always @(posedge clock) begin
+// always @(posedge clock) begin
+//     if (dcache_cmd_valid && !dcache_cmd_payload_wen) begin
+//       dcache_rsp_valid <= 1'b1;
+//     end
+//     else begin
+//       dcache_rsp_valid <= 1'b0;
+//     end
+    
+//     if (dcache_cmd_valid) begin
+//       dcache_rsp_payload_data <= dram_data_o;
+//     end
+// end
+
+always @(*) begin
     if (dcache_cmd_valid && !dcache_cmd_payload_wen) begin
-      dcache_rsp_valid <= 1'b1;
+      dcache_rsp_valid = 1'b1;
     end
     else begin
-      dcache_rsp_valid <= 1'b0;
+      dcache_rsp_valid = 1'b0;
     end
     
-    if (dcache_cmd_valid) begin
-      dcache_rsp_payload_data <= dram_data_o;
-    end
+    dcache_rsp_payload_data = dram_data_o;
 end
 
 // ------------ Difftest ----------------
