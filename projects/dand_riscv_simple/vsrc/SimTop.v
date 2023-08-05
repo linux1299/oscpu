@@ -202,6 +202,12 @@ always @(posedge clock) begin
   end
 end
 
+always@(posedge clock) begin
+  if (cmt_valid) begin
+    $display("pc:%h, inst:%h, rd_addr:%h, rd_value:%h", cmt_pc, cmt_inst, cmt_wdest, cmt_wdata);
+  end
+end
+
 reg skip;
 always @(posedge clock) begin
   if (reset)
