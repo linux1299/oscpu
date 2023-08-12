@@ -50,3 +50,95 @@ g++    axi4.o common.o compress.o device.o flash.o keyboard.o ram.o sdcard.o uar
 rm VSimTop__ALL.verilator_deplist.tmp
 make[2]: Leaving directory '/home/lin/oscpu/projects/dand_riscv_simple/build/emu-compile'
 make[1]: Leaving directory '/home/lin/oscpu/libraries/difftest'
+Simulating...
+Emu compiled at Aug 12 2023, 13:23:10
+The image is non-output/cpu-tests/add-cpu-tests.bin
+Using simulated 256MB RAM
+dump wave to /home/lin/oscpu/projects/dand_riscv_simple/build/2023-08-12@13:23:10.vcd...
+[35m[warning] sdcard img not found
+--diff is not given, try to use $(NEMU_HOME)/build/riscv64-nemu-interpreter-so by default
+Using /home/lin/oscpu/libraries/NEMU/build/riscv64-nemu-interpreter-so for difftest
+pc:0000000080000000, inst:00000413, cmt_wen:1 rd_addr:08, rd_value:0000000000000000
+The first instruction of core 0 has commited. Difftest enabled. 
+pc:0000000080000004, inst:00009117, cmt_wen:1 rd_addr:02, rd_value:0000000080009004
+pc:0000000080000008, inst:ffc10113, cmt_wen:1 rd_addr:02, rd_value:0000000080009000
+pc:000000008000000c, inst:114000ef, cmt_wen:1 rd_addr:01, rd_value:0000000080000010
+pc:0000000080000120, inst:ff010113, cmt_wen:1 rd_addr:02, rd_value:0000000080008ff0
+pc:0000000080000124, inst:00113423, cmt_wen:0 rd_addr:08, rd_value:0000000080008ff8
+pc:0000000080000128, inst:01c000ef, cmt_wen:1 rd_addr:01, rd_value:000000008000012c
+pc:0000000080000144, inst:00000797, cmt_wen:1 rd_addr:0f, rd_value:0000000080000144
+pc:0000000080000148, inst:33c78793, cmt_wen:1 rd_addr:0f, rd_value:0000000080000480
+pc:000000008000014c, inst:0007b503, cmt_wen:1 rd_addr:0a, rd_value:0000000080009000
+pc:0000000080000150, inst:0087b583, cmt_wen:1 rd_addr:0b, rd_value:0000000088000000
+pc:0000000080000158, inst:ff010113, cmt_wen:1 rd_addr:02, rd_value:0000000080008fe0
+pc:0000000080000160, inst:00000613, cmt_wen:1 rd_addr:0c, rd_value:0000000000000000
+pc:0000000080000168, inst:00113423, cmt_wen:0 rd_addr:08, rd_value:0000000080008fe8
+pc:0000000080000170, inst:00813083, cmt_wen:1 rd_addr:01, rd_value:000000008000012c
+
+============== Commit Group Trace (Core 0) ==============
+commit group [0]: pc 0080000000 cmtcnt 1 
+commit group [1]: pc 0080000004 cmtcnt 1 
+commit group [2]: pc 0080000008 cmtcnt 1 
+commit group [3]: pc 008000000c cmtcnt 1 
+commit group [4]: pc 0080000120 cmtcnt 1 
+commit group [5]: pc 0080000124 cmtcnt 1 
+commit group [6]: pc 0080000128 cmtcnt 1 
+commit group [7]: pc 0080000144 cmtcnt 1 
+commit group [8]: pc 0080000148 cmtcnt 1 
+commit group [9]: pc 008000014c cmtcnt 1 
+commit group [a]: pc 0080000150 cmtcnt 1 
+commit group [b]: pc 0080000158 cmtcnt 1 
+commit group [c]: pc 0080000160 cmtcnt 1 
+commit group [d]: pc 0080000168 cmtcnt 1 
+commit group [e]: pc 0080000170 cmtcnt 1 <--
+commit group [f]: pc 0000000000 cmtcnt 0 
+
+============== Commit Instr Trace ==============
+commit inst [0]: pc 0080000000 inst 00000413 wen 1 dst 00000008 data 0000000000000000 
+commit inst [1]: pc 0080000004 inst 00009117 wen 1 dst 00000002 data 0000000080009004 
+commit inst [2]: pc 0080000008 inst ffc10113 wen 1 dst 00000002 data 0000000080009000 
+commit inst [3]: pc 008000000c inst 114000ef wen 1 dst 00000001 data 0000000080000010 
+commit inst [4]: pc 0080000120 inst ff010113 wen 1 dst 00000002 data 0000000080008ff0 
+commit inst [5]: pc 0080000124 inst 00113423 wen 0 dst 00000008 data 0000000080008ff8 
+commit inst [6]: pc 0080000128 inst 01c000ef wen 1 dst 00000001 data 000000008000012c 
+commit inst [7]: pc 0080000144 inst 00000797 wen 1 dst 0000000f data 0000000080000144 
+commit inst [8]: pc 0080000148 inst 33c78793 wen 1 dst 0000000f data 0000000080000480 
+commit inst [9]: pc 008000014c inst 0007b503 wen 1 dst 0000000a data 0000000080009000 
+commit inst [a]: pc 0080000150 inst 0087b583 wen 1 dst 0000000b data 0000000088000000 
+commit inst [b]: pc 0080000158 inst ff010113 wen 1 dst 00000002 data 0000000080008fe0 
+commit inst [c]: pc 0080000160 inst 00000613 wen 1 dst 0000000c data 0000000000000000 
+commit inst [d]: pc 0080000168 inst 00113423 wen 0 dst 00000008 data 0000000080008fe8 
+commit inst [e]: pc 0080000170 inst 00813083 wen 1 dst 00000001 data 000000008000012c <--
+commit inst [f]: pc 0000000000 inst 00000000 wen 0 dst 00000000 data 0000000000000000 
+
+==============  REF Regs  ==============
+  $0: 0x0000000000000000   ra: 0x000000008000012c   sp: 0x0000000080008fe0   gp: 0x0000000000000000 
+  tp: 0x0000000000000000   t0: 0x0000000000000000   t1: 0x0000000000000000   t2: 0x0000000000000000 
+  s0: 0x0000000000000000   s1: 0x0000000000000000   a0: 0x0000000080009000   a1: 0x0000000007ff7000 
+  a2: 0x0000000000000000   a3: 0x0000000000000000   a4: 0x0000000000000000   a5: 0x0000000080000480 
+  a6: 0x0000000000000000   a7: 0x0000000000000000   s2: 0x0000000000000000   s3: 0x0000000000000000 
+  s4: 0x0000000000000000   s5: 0x0000000000000000   s6: 0x0000000000000000   s7: 0x0000000000000000 
+  s8: 0x0000000000000000   s9: 0x0000000000000000  s10: 0x0000000000000000  s11: 0x0000000000000000 
+  t3: 0x0000000000000000   t4: 0x0000000000000000   t5: 0x0000000000000000   t6: 0x0000000000000000 
+ ft0: 0x0000000000000000  ft1: 0x0000000000000000  ft2: 0x0000000000000000  ft3: 0x0000000000000000 
+ ft4: 0x0000000000000000  ft5: 0x0000000000000000  ft6: 0x0000000000000000  ft7: 0x0000000000000000 
+ fs0: 0x0000000000000000  fs1: 0x0000000000000000  fa0: 0x0000000000000000  fa1: 0x0000000000000000 
+ fa2: 0x0000000000000000  fa3: 0x0000000000000000  fa4: 0x0000000000000000  fa5: 0x0000000000000000 
+ fa6: 0x0000000000000000  fa7: 0x0000000000000000  fs2: 0x0000000000000000  fs3: 0x0000000000000000 
+ fs4: 0x0000000000000000  fs5: 0x0000000000000000  fs6: 0x0000000000000000  fs7: 0x0000000000000000 
+ fs8: 0x0000000000000000  fs9: 0x0000000000000000 fs10: 0x0000000000000000 fs11: 0x0000000000000000 
+ ft8: 0x0000000000000000  ft9: 0x0000000000000000 ft10: 0x0000000000000000 ft11: 0x0000000000000000 
+pc: 0x0000000080000164 mstatus: 0x0000000000001880 mcause: 0x0000000000000000 mepc: 0x0000000000000000
+                       sstatus: 0x0000000000000000 scause: 0x0000000000000000 sepc: 0x0000000000000000
+satp: 0x0000000000000000
+mip: 0x0000000000000000 mie: 0x0000000000000000 mscratch: 0x0000000000000000 sscratch: 0x0000000000000000
+mideleg: 0x0000000000000000 medeleg: 0x0000000000000000
+mtval: 0x0000000000000000 stval: 0x0000000000000000 mtvec: 0x0000000000000000 stvec: 0x0000000000000000
+priviledgeMode: 3
+     a1 different at pc = 0x0080000160, right= 0x0000000007ff7000, wrong = 0x0000000088000000
+Core 0: [31mABORT at pc = 0x80000170
+[0m[35mtotal guest instructions = 15
+[0m[35minstrCnt = 15, cycleCnt = 43, IPC = 0.348837
+[0m[34mSeed=0 Guest cycle spent: 44 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 0ms
+[0mFailed to simulate!!!
