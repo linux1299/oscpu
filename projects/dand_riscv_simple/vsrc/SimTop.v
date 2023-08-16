@@ -259,8 +259,8 @@ reg skip;
 always @(posedge clock) begin
   if (reset)
     skip <= 0;
-  else if (writeback_inst==32'h7b)
-  // else if (writeback_inst==32'h6b || writeback_inst==32'h7b)
+  // else if (writeback_inst==32'h7b)
+  else if (writeback_inst==32'h6b || writeback_inst==32'h7b)
     skip <= 1;
   else
     skip <= 0; 
