@@ -242,7 +242,7 @@ always @(posedge clock) begin
     cmt_inst  <= writeback_inst;
     cmt_valid <= writeback_valid;
     regs_diff <= regs_o;
-    // trap      <= writeback_inst[6:0] == 7'h6b;
+    trap      <= writeback_inst[6:0] == 7'h6b && writeback_valid;
     trap_code <= u_DandRiscvSimple.regFileModule_1.reg_file_10[7:0];
     cycleCnt  <= cycleCnt + 1;
     instrCnt  <= instrCnt + writeback_valid;
@@ -259,8 +259,8 @@ reg skip;
 always @(posedge clock) begin
   if (reset)
     skip <= 0;
-  // else if (writeback_inst==32'h7b)
-  else if (writeback_inst==32'h6b || writeback_inst==32'h7b)
+  else if (writeback_inst==32'h7b)
+  // else if (writeback_inst==32'h6b || writeback_inst==32'h7b)
     skip <= 1;
   else
     skip <= 0; 
