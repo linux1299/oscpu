@@ -112,16 +112,16 @@ module ysyx_210238
 );
 
 // ============== for sim ================
-reg [63:0] pc_cnt;
-always @(posedge clock) begin
-    if (reset) begin
-        pc_cnt <= 0;
-    end
-    else if (cpu_core.inst_valid_if_id) begin
-        $display("pc = %h, pc_cnt = %d \n", cpu_core.pc, pc_cnt);
-        pc_cnt <= pc_cnt + 1;
-    end
-end
+// reg [63:0] pc_cnt;
+// always @(posedge clock) begin
+//     if (reset) begin
+//         pc_cnt <= 0;
+//     end
+//     else if (cpu_core.inst_valid_if_id) begin
+//         $display("pc = %h, pc_cnt = %d \n", cpu_core.pc, pc_cnt);
+//         pc_cnt <= pc_cnt + 1;
+//     end
+// end
 // always @(posedge clock) begin
 //     if (io_master_awvalid) begin
 //         $display("waddr=%h, wdata=%h, wstrb=%h \n", io_master_awaddr, io_master_wdata, io_master_wstrb);
