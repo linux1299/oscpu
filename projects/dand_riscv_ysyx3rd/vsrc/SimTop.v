@@ -251,9 +251,9 @@ axi_slave_mem#(
 RAMHelper RAMHelper_data(
     .clk   ( clock   ),
     .en    ( ram_mem_read | ram_mem_write),
-    .rIdx  ( ram_addr ),
+    .rIdx  ( ram_mem_raddr[27:0] ),
     .rdata ( ram_mem_rsp_rdata ),
-    .wIdx  ( ram_addr ),
+    .wIdx  ( ram_mem_waddr[27:0] ),
     .wdata ( ram_mem_wdata),
     .wmask ( ram_wmask),
     .wen   ( ram_mem_write)
