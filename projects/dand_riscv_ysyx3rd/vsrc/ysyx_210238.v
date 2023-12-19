@@ -1,1 +1,1 @@
-/home/lin/SpinalProjects/DandRiscvSoC/ysyx_210238.v
+/home/lin/SpinalProjects/DandRiscvSoC/hw/gen/ysyx_210238.v

@@ -1,1 +1,1 @@
-/home/lin/SpinalProjects/DandRiscvSoC/DandRiscvSimple.v
+/home/lin/SpinalProjects/DandRiscvSoC/hw/gen/DandRiscvSimple.v
